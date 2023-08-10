@@ -6,7 +6,7 @@
 	const { products, prices } = data;
 
 	function getPrice(priceId: string | Stripe.Price) {
-		const price = prices.find((price) => price.id === priceId);
+		const price = prices.find((price: Stripe.Price) => price.id === priceId);
 
 		if (!price) return '?';
 

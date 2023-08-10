@@ -24,4 +24,8 @@
 	main {
 		flex-grow: 1;
 	}
+
+	nav, footer, main {
+		margin: 0 10%
+	}
 </style>
