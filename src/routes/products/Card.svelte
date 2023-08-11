@@ -1,8 +1,13 @@
 <script lang="ts">
-	import type { Stripe } from 'stripe';
+	import type Stripe from 'stripe';
+	import { cart } from '../../stores';
 
 	export let product: Stripe.Product;
-	export let price: number | string;
+	export let price: number;
+
+	function addToCart(product: Stripe.Product, price: number) {
+		cart.update((n) => [...n, { product, price }]);
+	}
 </script>
 
 <div class="product-card">
@@ -18,7 +23,7 @@
 			</h3></a
 		>
 	</div>
-	<button>Add to cart</button>
+	<button on:click={() => addToCart(product, price)}>Add to cart</button>
 </div>
 
 <style>
