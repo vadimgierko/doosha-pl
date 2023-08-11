@@ -1,8 +1,13 @@
+<script>
+	import { cart } from '../stores';
+</script>
+
 <nav>
 	<strong>doosha store</strong>
 	<div>
 		<a href="/">home</a> |
-		<a href="/products">products</a>
+		<a href="/products">products</a> |
+		<a href="/cart">cart ({$cart.length})</a>
 	</div>
 </nav>
 
@@ -25,7 +30,9 @@
 		flex-grow: 1;
 	}
 
-	nav, footer, main {
-		margin: 0 10%
+	nav,
+	footer,
+	main {
+		margin: 0 10%;
 	}
 </style>
