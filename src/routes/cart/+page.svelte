@@ -1,9 +1,27 @@
 <script lang="ts">
-	import { cart } from '../../stores';
+	import type Stripe from 'stripe';
+	import { cart, removeFromCart } from '../../stores';
 
-	function removeFromCart(productId: string) {
-		cart.update((n) => n.filter((r) => r.product.id !== productId));
+	export let data;
+
+	const { products, prices } = data;
+
+	function getProduct(productId: string) {
+		const product = products.find((p) => p.id === productId);
+		return product;
 	}
+
+	function getPrice(productId: string) {
+		const price = prices.find((p) => p.product === productId);
+		return price;
+	}
+
+	$: cartProductsAndPrices = $cart
+		.map((id) => ({ product: getProduct(id), price: getPrice(id) }))
+		.filter((record) => record.product !== undefined && record.price !== undefined) as {
+		product: Stripe.Product;
+		price: Stripe.Price;
+	}[];
 </script>
 
 <h1 style="text-align:center">Cart ({$cart.length})</h1>
@@ -13,17 +31,19 @@
 {#if $cart.length === 0}
 	<p style="text-align:center">Cart is empty...</p>
 {:else}
-	{#each $cart as record (record.product.id)}
+	{#each cartProductsAndPrices as { product, price }}
 		<div class="container">
 			<div style="min-width:100px; max-width:100px">
-				<img width="100%" src={record.product.images[0]} alt="{record.product.name}}" />
+				<img width="100%" src={product.images[0]} alt={product.name} />
 			</div>
 			<div class="product-details">
-				<h3>{record.product.name}</h3>
-				<p><strong>{record.price},-</strong></p>
+				<h3>{product.name}</h3>
+				{#if price.unit_amount}
+					<p><strong>{price.unit_amount / 100},-</strong></p>
+				{/if}
 				<p />
-				<p style="color: grey">{record.product.id}</p>
-				<button on:click={() => removeFromCart(record.product.id)}>remove from cart</button>
+				<p style="color: grey">{product.id}</p>
+				<button on:click={() => removeFromCart(product.id)}>remove from cart</button>
 			</div>
 		</div>
 	{/each}

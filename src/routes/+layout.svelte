@@ -1,5 +1,11 @@
 <script>
 	import { cart } from '../stores';
+
+	export let data;
+
+	const { products, prices } = data;
+
+	$: console.log('Fetching data: \nproducts:', products, '\nprices:', prices);
 </script>
 
 <nav>
