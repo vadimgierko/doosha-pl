@@ -1,13 +1,9 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
-	import { cart } from '../../stores';
+	import { cart, addToCart } from '../../stores';
 
 	export let product: Stripe.Product;
-	export let price: number;
-
-	function addToCart(product: Stripe.Product, price: number) {
-		cart.update((n) => [...n, { product, price }]);
-	}
+	export let price: Stripe.Price | undefined;
 </script>
 
 <div class="product-card">
@@ -19,11 +15,14 @@
 	<div>
 		<a href={`/products/${product.id}`}
 			><h3 class="product-card-title">
-				<span style="margin-right: 1em">{product.name}</span><span>{price},-</span>
+				<span style="margin-right: 1em">{product.name}</span>
+				{#if price && price.unit_amount}
+					<span>{price.unit_amount / 100},-</span>
+				{/if}
 			</h3></a
 		>
 	</div>
-	<button on:click={() => addToCart(product, price)}>Add to cart</button>
+	<button on:click={() => addToCart(product.id)}>Add to cart</button>
 </div>
 
 <style>
