@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
-	import { cart, addToCart } from '../../stores';
+	import { addToCart } from '../../stores';
 
 	export let product: Stripe.Product;
 	export let price: Stripe.Price | undefined;
@@ -22,7 +22,9 @@
 			</h3></a
 		>
 	</div>
-	<button on:click={() => addToCart(product.id)}>Add to cart</button>
+	<button on:click={() => addToCart(product.id)} disabled={Number(product.metadata.qty) === 0}
+		>Add to cart</button
+	>
 </div>
 
 <style>

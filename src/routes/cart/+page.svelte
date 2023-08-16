@@ -17,10 +17,15 @@
 	}
 
 	$: cartProductsAndPrices = $cart
-		.map((id) => ({ product: getProduct(id), price: getPrice(id) }))
+		.map((record) => ({
+			product: getProduct(record.id),
+			price: getPrice(record.id),
+			qty: record.qty
+		}))
 		.filter((record) => record.product !== undefined && record.price !== undefined) as {
 		product: Stripe.Product;
 		price: Stripe.Price;
+		qty: number;
 	}[];
 </script>
 
@@ -31,7 +36,7 @@
 {#if $cart.length === 0}
 	<p style="text-align:center">Cart is empty...</p>
 {:else}
-	{#each cartProductsAndPrices as { product, price }}
+	{#each cartProductsAndPrices as { product, price, qty }}
 		<div class="container">
 			<div style="min-width:100px; max-width:100px">
 				<img width="100%" src={product.images[0]} alt={product.name} />
@@ -43,6 +48,25 @@
 				{/if}
 				<p />
 				<p style="color: grey">{product.id}</p>
+				<div>
+					<button
+						on:click={() => {
+							if (qty > 0) {
+								cart.update((records) =>
+									records.map((r) => (r.id === product.id ? { ...r, qty: r.qty - 1 } : r))
+								);
+							}
+						}}>-</button
+					>{qty}<button
+						on:click={() => {
+							if (qty < Number(product.metadata.qty)) {
+								cart.update((records) =>
+									records.map((r) => (r.id === product.id ? { ...r, qty: r.qty + 1 } : r))
+								);
+							}
+						}}>+</button
+					>
+				</div>
 				<button on:click={() => removeFromCart(product.id)}>remove from cart</button>
 			</div>
 		</div>

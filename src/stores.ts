@@ -1,18 +1,30 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 
-const initCart: string[] = [];
+interface CartRecord {
+	id: string;
+	qty: number;
+}
+
+const initCart: CartRecord[] = [];
 
 export const cart = writable(initCart);
 export const CART_NAME = 'doosha-cart';
 
 export function addToCart(id: string) {
-	cart.update((n) => [...n, id]);
+	// if product is already in the cart => increment qty:
+	if (get(cart).find((r) => r.id === id)) {
+		cart.update((records) => records.map((r) => (r.id === id ? { ...r, qty: r.qty + 1 } : r)));
+		console.log('product with the id:', id, 'is already in the cart, so increment its quantity.');
+		return;
+	}
+
+	cart.update((n) => [...n, { id, qty: 1 }]);
 	console.log('product with the id:', id, 'was added to cart.');
 }
 
 export function removeFromCart(id: string) {
-	cart.update((n) => n.filter((i) => i !== id));
+	cart.update((records) => records.filter((r) => r.id !== id));
 	console.log('product with the id:', id, 'was removed from cart.');
 }
 
@@ -28,9 +40,9 @@ if (browser) {
 	}
 
 	// when cart items are updated => log it & update local storage:
-	cart.subscribe((ids) => {
-		console.log('cart ids update:', ids);
+	cart.subscribe((records) => {
+		console.log('cart records update:', records);
 		// update local storage:
-		localStorage[CART_NAME] = JSON.stringify(ids);
+		localStorage[CART_NAME] = JSON.stringify(records);
 	});
 }
