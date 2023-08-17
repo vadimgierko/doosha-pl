@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
-	import { cart, removeFromCart } from '../../stores';
+	import { cart } from '../../stores';
+	import RemoveFromCartButton from '$lib/RemoveFromCartButton.svelte';
 
 	export let data;
 
@@ -17,15 +18,13 @@
 	}
 
 	$: cartProductsAndPrices = $cart
-		.map((record) => ({
-			product: getProduct(record.id),
-			price: getPrice(record.id),
-			qty: record.qty
+		.map((id) => ({
+			product: getProduct(id),
+			price: getPrice(id)
 		}))
 		.filter((record) => record.product !== undefined && record.price !== undefined) as {
 		product: Stripe.Product;
 		price: Stripe.Price;
-		qty: number;
 	}[];
 </script>
 
@@ -36,7 +35,7 @@
 {#if $cart.length === 0}
 	<p style="text-align:center">Cart is empty...</p>
 {:else}
-	{#each cartProductsAndPrices as { product, price, qty }}
+	{#each cartProductsAndPrices as { product, price }}
 		<div class="container">
 			<div style="min-width:100px; max-width:100px">
 				<img width="100%" src={product.images[0]} alt={product.name} />
@@ -48,26 +47,7 @@
 				{/if}
 				<p />
 				<p style="color: grey">{product.id}</p>
-				<div>
-					<button
-						on:click={() => {
-							if (qty > 0) {
-								cart.update((records) =>
-									records.map((r) => (r.id === product.id ? { ...r, qty: r.qty - 1 } : r))
-								);
-							}
-						}}>-</button
-					>{qty}<button
-						on:click={() => {
-							if (qty < Number(product.metadata.qty)) {
-								cart.update((records) =>
-									records.map((r) => (r.id === product.id ? { ...r, qty: r.qty + 1 } : r))
-								);
-							}
-						}}>+</button
-					>
-				</div>
-				<button on:click={() => removeFromCart(product.id)}>remove from cart</button>
+				<RemoveFromCartButton id={product.id} />
 			</div>
 		</div>
 	{/each}
@@ -91,18 +71,5 @@
 	p {
 		margin-top: 0;
 		margin-bottom: 0.5em;
-	}
-
-	button {
-		background-color: transparent;
-		/* border-radius: 0.5em; */
-		border-color: rgb(252, 52, 52);
-		padding: 0.5em 0;
-		border-width: 1px;
-	}
-
-	button:hover {
-		background-color: rgb(252, 52, 52);
-		color: white;
 	}
 </style>
