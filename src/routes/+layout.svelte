@@ -9,9 +9,9 @@
 </script>
 
 <nav>
-	<strong>doosha store</strong>
+	<a href="/" class="brand"><strong>doosha | lena gierko</strong></a>
+
 	<div>
-		<a href="/">home</a> |
 		<a href="/products">products</a> |
 		<a href="/cart">cart ({$cart.length})</a>
 	</div>
@@ -40,5 +40,10 @@
 	footer,
 	main {
 		margin: 0 10%;
+	}
+
+	.brand {
+		text-decoration: none;
+		color: black;
 	}
 </style>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Stripe } from 'stripe';
-	import Card from './Card.svelte';
+	import Card from '$lib/Card.svelte';
 
 	export let data;
 	const { products, prices } = data;
@@ -14,9 +14,6 @@
 <h1 style="text-align: center;">Products</h1>
 
 <div class="products-list">
-	{#each products as product}
-		<Card {product} price={getPrice(product.id)} />
-	{/each}
 	{#each products as product}
 		<Card {product} price={getPrice(product.id)} />
 	{/each}
