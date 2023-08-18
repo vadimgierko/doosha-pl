@@ -26,6 +26,26 @@
 		product: Stripe.Product;
 		price: Stripe.Price;
 	}[];
+
+	async function checkout() {
+		// TODO:
+		// before redirecting for payment,
+		// check if products Are available (active: true):
+
+		await fetch('api/checkout', {
+			// http://localhost:5173/api/checkout
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ prices: cartProductsAndPrices.map((p) => p.price.id) })
+		})
+			.then((data) => data.json())
+			.then((data) => {
+				// redirect to stripe checkout:
+				window.location.replace(data.url);
+			});
+	}
 </script>
 
 <h1 style="text-align:center">Cart ({$cart.length})</h1>
@@ -51,7 +71,22 @@
 			</div>
 		</div>
 	{/each}
+
+	<div>
+		<hr />
+	
+		<p style="text-align: end;">
+			<strong>Sum:</strong> {cartProductsAndPrices.reduce(
+				(sum, p) => (p.price.unit_amount ? sum + p.price.unit_amount/100 : sum/100),
+				0
+			)},-
+		</p>
+		
+		<button class="checkout-button" on:click={() => checkout()}>go to checkout</button>
+	</div>
 {/if}
+
+
 
 <style>
 	.container {
@@ -71,5 +106,19 @@
 	p {
 		margin-top: 0;
 		margin-bottom: 0.5em;
+	}
+
+	.checkout-button {
+		width: 100%;
+		background-color: transparent;
+		/* border-radius: 0.5em; */
+		border-color: rgb(219, 218, 218);
+		padding: 0.5em 0;
+		border-width: 1px;
+	}
+
+	.checkout-button:hover {
+		background-color: rgb(211, 198, 178);
+		color: white;
 	}
 </style>
