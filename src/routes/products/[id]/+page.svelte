@@ -1,6 +1,8 @@
 <script>
 	import { page } from '$app/stores';
-	import { addToCart } from '../../../stores';
+	import AddToCartButton from '$lib/AddToCartButton.svelte';
+	import RemoveFromCartButton from '$lib/RemoveFromCartButton.svelte';
+	import { cart, addToCart } from '../../../stores';
 
 	export let data;
 
@@ -18,6 +20,8 @@
 				price
 		  )
 		: console.error(`PRODUCT PAGE: There is no product data of id ${productId}...`);
+
+	$: isProductInCart = product ? $cart.find((id) => id === product.id) : undefined;
 </script>
 
 {#if product && price && price.unit_amount}
@@ -30,7 +34,11 @@
 			<h2>{price.unit_amount / 100},-</h2>
 			<p style="color: grey">product id: {productId}</p>
 			<p>{product.description}</p>
-			<button on:click={() => addToCart(productId)}>Add to cart</button>
+			{#if isProductInCart}
+				<RemoveFromCartButton id={product.id} />
+			{:else}
+				<AddToCartButton id={product.id} />
+			{/if}
 		</div>
 	</div>
 {:else}
@@ -46,18 +54,5 @@
 		display: flex;
 		flex-direction: column;
 		padding-left: 1em;
-	}
-
-	button {
-		background-color: transparent;
-		/* border-radius: 0.5em; */
-		border-color: rgb(219, 218, 218);
-		padding: 0.5em 0;
-		border-width: 1px;
-	}
-
-	button:hover {
-		background-color: rgb(211, 198, 178);
-		color: white;
 	}
 </style>

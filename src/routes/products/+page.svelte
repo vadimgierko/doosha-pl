@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Stripe } from 'stripe';
 	import Card from '$lib/Card.svelte';
 
 	export let data;

@@ -26,6 +26,30 @@
 		product: Stripe.Product;
 		price: Stripe.Price;
 	}[];
+
+	async function checkout() {
+		// TODO:
+		// before redirecting for payment,
+		// check if products Are available (active: true):
+
+		await fetch('api/checkout', {
+			// http://localhost:5173/api/checkout
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ prices: cartProductsAndPrices.map((p) => p.price.id) })
+		})
+			.then((data) => data.json())
+			.then((data) => {
+				if (data.url) {
+					// redirect to stripe checkout:
+					window.location.replace(data.url);
+				} else {
+					alert("Checkout session wasn't created because of error...");
+				}
+			});
+	}
 </script>
 
 <h1 style="text-align:center">Cart ({$cart.length})</h1>
@@ -38,10 +62,15 @@
 	{#each cartProductsAndPrices as { product, price }}
 		<div class="container">
 			<div style="min-width:100px; max-width:100px">
-				<img width="100%" src={product.images[0]} alt={product.name} />
+				<a href={`/products/${product.id}`}>
+					<img class="product-img" width="100%" src={product.images[0]} alt={product.name} />
+				</a>
 			</div>
 			<div class="product-details">
-				<h3>{product.name}</h3>
+				<header class="product-title">
+					<a href={`/products/${product.id}`}><h3>{product.name}</h3></a>
+				</header>
+
 				{#if price.unit_amount}
 					<p><strong>{price.unit_amount / 100},-</strong></p>
 				{/if}
@@ -51,6 +80,20 @@
 			</div>
 		</div>
 	{/each}
+
+	<div>
+		<hr />
+
+		<p style="text-align: end;">
+			<strong>Sum:</strong>
+			{cartProductsAndPrices.reduce(
+				(sum, p) => (p.price.unit_amount ? sum + p.price.unit_amount / 100 : sum / 100),
+				0
+			)},-
+		</p>
+
+		<button class="checkout-button" on:click={() => checkout()}>go to checkout</button>
+	</div>
 {/if}
 
 <style>
@@ -71,5 +114,29 @@
 	p {
 		margin-top: 0;
 		margin-bottom: 0.5em;
+	}
+
+	.checkout-button {
+		width: 100%;
+		background-color: transparent;
+		/* border-radius: 0.5em; */
+		border-color: rgb(219, 218, 218);
+		padding: 0.5em 0;
+		border-width: 1px;
+	}
+
+	.checkout-button:hover {
+		background-color: rgb(211, 198, 178);
+		color: white;
+	}
+
+	a {
+		text-decoration: none;
+		color: black;
+	}
+
+	.product-title:hover,
+	.product-img:hover {
+		opacity: 0.8;
 	}
 </style>
