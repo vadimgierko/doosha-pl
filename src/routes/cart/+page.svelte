@@ -42,8 +42,12 @@
 		})
 			.then((data) => data.json())
 			.then((data) => {
-				// redirect to stripe checkout:
-				window.location.replace(data.url);
+				if (data.url) {
+					// redirect to stripe checkout:
+					window.location.replace(data.url);
+				} else {
+					alert("Checkout session wasn't created because of error...");
+				}
 			});
 	}
 </script>
@@ -58,10 +62,15 @@
 	{#each cartProductsAndPrices as { product, price }}
 		<div class="container">
 			<div style="min-width:100px; max-width:100px">
-				<img width="100%" src={product.images[0]} alt={product.name} />
+				<a href={`/products/${product.id}`}>
+					<img class="product-img" width="100%" src={product.images[0]} alt={product.name} />
+				</a>
 			</div>
 			<div class="product-details">
-				<h3>{product.name}</h3>
+				<header class="product-title">
+					<a href={`/products/${product.id}`}><h3>{product.name}</h3></a>
+				</header>
+
 				{#if price.unit_amount}
 					<p><strong>{price.unit_amount / 100},-</strong></p>
 				{/if}
@@ -74,19 +83,18 @@
 
 	<div>
 		<hr />
-	
+
 		<p style="text-align: end;">
-			<strong>Sum:</strong> {cartProductsAndPrices.reduce(
-				(sum, p) => (p.price.unit_amount ? sum + p.price.unit_amount/100 : sum/100),
+			<strong>Sum:</strong>
+			{cartProductsAndPrices.reduce(
+				(sum, p) => (p.price.unit_amount ? sum + p.price.unit_amount / 100 : sum / 100),
 				0
 			)},-
 		</p>
-		
+
 		<button class="checkout-button" on:click={() => checkout()}>go to checkout</button>
 	</div>
 {/if}
-
-
 
 <style>
 	.container {
@@ -120,5 +128,15 @@
 	.checkout-button:hover {
 		background-color: rgb(211, 198, 178);
 		color: white;
+	}
+
+	a {
+		text-decoration: none;
+		color: black;
+	}
+
+	.product-title:hover,
+	.product-img:hover {
+		opacity: 0.8;
 	}
 </style>
