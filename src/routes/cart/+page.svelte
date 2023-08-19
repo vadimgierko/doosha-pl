@@ -42,11 +42,15 @@
 		})
 			.then((data) => data.json())
 			.then((data) => {
-				if (data.url) {
+				// session object:
+				const session = data;
+
+				if (session.url) {
+					console.log('new session object:', session);
 					// redirect to stripe checkout:
-					window.location.replace(data.url);
+					window.location.replace(session.url);
 				} else {
-					alert("Checkout session wasn't created because of error...");
+					alert("Checkout session wasn't created because of some kind of error...");
 				}
 			});
 	}

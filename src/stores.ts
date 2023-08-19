@@ -16,6 +16,10 @@ export function removeFromCart(id: string) {
 	console.log('product with the id:', id, 'was removed from cart.');
 }
 
+export function resetCart() {
+	cart.set(initCart);
+}
+
 // NOTE: TO WORK WITH LOCAL STORAGE WE NEED TO CHECK IF WE ARE IN BROWSER ENV:
 if (browser) {
 	// get init cart items ids saved in local storage:

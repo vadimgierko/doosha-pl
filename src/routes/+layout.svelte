@@ -27,7 +27,8 @@
 				/>
 			</svg>
 			<span class="amount">({$cart.length})</span></a
-		> |
+		>
+		|
 		<a class="icon" href="https://www.instagram.com/doos.ha/" target="_blank"
 			><svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -65,7 +66,7 @@
 	main {
 		margin: 0 10%;
 	}
-	
+
 	footer {
 		padding: 1em 0;
 		margin-top: 1em;
