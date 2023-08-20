@@ -1,13 +1,14 @@
 <script>
 	import { page } from '$app/stores';
-	import AddToCartButton from '$lib/AddToCartButton.svelte';
-	import RemoveFromCartButton from '$lib/RemoveFromCartButton.svelte';
-	import { cart, addToCart } from '../../../stores';
+	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
+	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
+	import { products } from '../../../lib/stores/products';
+	import { cart } from '../../../lib/stores/cart';
 
 	export let data;
 
 	const productId = $page.params.id;
-	const product = data.products.find((p) => p.id === productId);
+	const product = $products.find((p) => p.id === productId);
 	const price = data.prices.find((p) => p.product === productId);
 
 	$: product && price
@@ -34,25 +35,43 @@
 			<h2>{price.unit_amount / 100},-</h2>
 			<p style="color: grey">product id: {productId}</p>
 			<p>{product.description}</p>
-			{#if isProductInCart}
-				<RemoveFromCartButton id={product.id} />
+			{#if product.active}
+				{#if isProductInCart}
+					<RemoveFromCartButton id={product.id} />
+				{:else}
+					<AddToCartButton id={product.id} />
+				{/if}
 			{:else}
-				<AddToCartButton id={product.id} />
+				<p style="color:red">
+					Product is archived (has been purchased)... Cannot buy this product.
+				</p>
 			{/if}
 		</div>
 	</div>
 {:else}
-	<p style="text-align:center;">There is no such product with the id {productId}...</p>
+	<p style="text-align:center">There is no such product with the id {productId}...</p>
 {/if}
 
 <style>
 	.container {
 		display: flex;
+		flex-direction: row;
 	}
 
 	.product-details {
 		display: flex;
 		flex-direction: column;
 		padding-left: 1em;
+	}
+
+	@media only screen and (max-width: 400px) {
+		.container {
+			flex-direction: column;
+		}
+
+		.product-details {
+			margin-top: 1em;
+			padding-left: 0;
+		}
 	}
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { addToCart } from '../stores';
+	import { addToCart } from '$lib/stores/cart';
 
 	export let id: string;
 </script>
