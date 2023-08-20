@@ -1,18 +1,28 @@
 <script>
-	import { cart } from '../stores';
+	import { cart } from '$lib/stores/cart';
+	import { products } from '$lib/stores/products';
 
+	// products & prices fetched on server before app mounts:
 	export let data;
 
-	const { products, prices } = data;
-
-	$: console.log('Fetching data: \nproducts:', products, '\nprices:', prices);
+	$: {
+		console.log(
+			'Fetching products & prices from Stripe: \nproducts:',
+			data.products,
+			'\nprices:',
+			data.prices
+		);
+		// init products store:
+		products.set(data.products);
+	}
 </script>
 
 <nav>
-	<a href="/" class="brand"><strong>doosha | lena gierko</strong></a>
+	<a href="/" class="brand"><strong>doosha</strong></a>
 
 	<div>
 		<a href="/products">products</a> |
+		<a href="/products/archived">archived</a> |
 		<a class="icon" href="/cart"
 			><svg
 				xmlns="http://www.w3.org/2000/svg"

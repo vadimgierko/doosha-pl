@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { cart, resetCart } from '../../stores';
+	import { cart, resetCart } from '$lib/stores/cart';
+	import { products } from '$lib/stores/products';
+	import type Stripe from 'stripe';
 
 	// TODO: CONVERT THIS REACT CODE & USE ITS LOGIC:
 
@@ -27,18 +29,6 @@
 	// 	}
 	// }, [session]);
 
-	async function archiveProducts(ids: string[]) {
-		console.log('archiving products...');
-		// call api route:
-		await fetch('api/products/archive', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ ids })
-		});
-	}
-
 	onMount(() => {
 		try {
 			fetch('api/products/archive', {
@@ -49,9 +39,15 @@
 				body: JSON.stringify({ ids: $cart })
 			})
 				.then((data) => data.json())
-				.then((archivedProducts) => {
-					resetCart();
+				.then((archivedProducts: Stripe.Product[]) => {
 					console.log({ archivedProducts });
+					// update products store with archived products:
+					products.update((n) =>
+						n.map((p) =>
+							$cart.includes(p.id) ? archivedProducts.filter((a) => a.id === p.id)[0] : p
+						)
+					);
+					resetCart();
 				});
 		} catch (error) {
 			console.error(error);

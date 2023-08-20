@@ -1,8 +1,9 @@
 <script lang="ts">
-	import Card from '$lib/Card.svelte';
+	import Card from '$lib/components/Card.svelte';
+	import { products } from '$lib/stores/products.js';
 
 	export let data;
-	const { products, prices } = data;
+	const { prices } = data;
 
 	function getPrice(productId: string) {
 		const price = prices.find((p) => p.product === productId);
@@ -13,7 +14,7 @@
 <h1 style="text-align: center;">Products</h1>
 
 <div class="products-list">
-	{#each products as product}
+	{#each $products.filter((p) => p.active === true) as product}
 		<Card {product} price={getPrice(product.id)} />
 	{/each}
 </div>

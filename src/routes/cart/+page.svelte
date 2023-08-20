@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
-	import { cart } from '../../stores';
-	import RemoveFromCartButton from '$lib/RemoveFromCartButton.svelte';
+	import { cart } from '../../lib/stores/cart';
+	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
 
 	export let data;
 

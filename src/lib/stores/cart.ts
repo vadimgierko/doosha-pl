@@ -33,7 +33,7 @@ if (browser) {
 
 	// when cart items are updated => log it & update local storage:
 	cart.subscribe((records) => {
-		console.log('cart records update:', records);
+		console.log('cart store records update:', records);
 		// update local storage:
 		localStorage[CART_NAME] = JSON.stringify(records);
 	});
