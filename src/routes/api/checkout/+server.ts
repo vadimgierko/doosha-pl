@@ -10,6 +10,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	// items: [ { id: "1", quantity: 6 }, { id: "2", quantity: 3 } ]
 	const data = await request.json();
 	const prices: string[] = data.prices;
+	const URL = data.url;
 	console.log('chekout prices:', prices);
 
 	// It gives us a URL for the person to check out with
@@ -30,8 +31,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		},
 		currency: 'pln',
 		// TODO: CHANGE IT TO ACCEPT ANY URL WE ARE IN:
-		success_url: 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
-		cancel_url: 'http://localhost:5173/cancel?session_id={CHECKOUT_SESSION_ID}',
+		success_url: `${URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+		cancel_url: `${URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
 		// FORCE SESSION EXPIRE AFTER 30 MINUTES:
 		expires_at: Math.floor(Date.now() / 1000) + 3600 * 0.5 // Configured to expire after 30 minutes
 		// description: "Test description", // single string

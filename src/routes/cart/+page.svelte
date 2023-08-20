@@ -1,7 +1,10 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
 	import { cart } from '../../lib/stores/cart';
+	import { page } from '$app/stores';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
+
+	console.log('page:', $page);
 
 	export let data;
 
@@ -30,29 +33,60 @@
 	async function checkout() {
 		// TODO:
 		// before redirecting for payment,
-		// check if products Are available (active: true):
+		// 0. fetch products
 
-		await fetch('api/checkout', {
-			// http://localhost:5173/api/checkout
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ prices: cartProductsAndPrices.map((p) => p.price.id) })
-		})
-			.then((data) => data.json())
-			.then((data) => {
-				// session object:
-				const session = data;
+		// 1. check if products are available (active: true):
+		const areAllProductsAvailable = cartProductsAndPrices.every((p) => p.product.active === true);
 
-				if (session.url) {
-					console.log('new session object:', session);
-					// redirect to stripe checkout:
-					window.location.replace(session.url);
-				} else {
-					alert("Checkout session wasn't created because of some kind of error...");
-				}
-			});
+		if (areAllProductsAvailable) {
+			console.log('all products in cart are available! Proceed checkout...');
+
+			// 2. if true, check if they're not in the another session
+			// 3. if true, add session id to metadata of products
+
+			// 4. create checkout session:
+			try {
+				await fetch('/api/checkout', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						prices: cartProductsAndPrices.map((p) => p.price.id),
+						url: $page.url.origin // we need to pass this for dynamic /success & /cancel URLs defined checkout API route
+					})
+				})
+					.then((data) => data.json())
+					.then((data) => {
+						// session object:
+						const session = data;
+
+						if (session.url) {
+							console.log('new session object:', session);
+							// redirect to stripe checkout:
+							window.location.replace(session.url);
+						} else {
+							alert("Checkout session wasn't created because of some kind of error...");
+						}
+					});
+			} catch (error) {
+				console.error(error);
+				alert(error);
+			}
+		} else {
+			const unavailableProducts = cartProductsAndPrices.filter((p) => p.product.active !== true);
+
+			console.error(
+				`Some of products in the cart are not available at the moment: ${unavailableProducts
+					.map((p) => p.product.name)
+					.join(', ')}. Remove them to proceed checkout.`
+			);
+			alert(
+				`Some of products in the cart are not available at the moment: ${unavailableProducts
+					.map((p) => p.product.name)
+					.join(', ')}. Remove them to proceed checkout.`
+			);
+		}
 	}
 </script>
 
@@ -72,13 +106,19 @@
 			</div>
 			<div class="product-details">
 				<header class="product-title">
-					<a href={`/products/${product.id}`}><h3>{product.name}</h3></a>
+					<a href={`/products/${product.id}`}><h3>{product.name}</h3> </a>
 				</header>
 
 				{#if price.unit_amount}
 					<p><strong>{price.unit_amount / 100},-</strong></p>
 				{/if}
-				<p />
+
+				{#if !product.active}
+					<span style="color:red"
+						>(Product is not available at the moment... Remove it to proceed tho checkout.)</span
+					>
+				{/if}
+
 				<p style="color: grey">{product.id}</p>
 				<RemoveFromCartButton id={product.id} />
 			</div>
