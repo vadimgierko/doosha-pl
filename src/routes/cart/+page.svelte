@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
-	import { cart } from '../../lib/stores/cart';
+	import { cart } from '$lib/stores/cart';
+	import {products as productsStore} from "$lib/stores/products";
+	import { prices as pricesStore } from '$lib/stores/prices.js';
 	import { page } from '$app/stores';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
 
@@ -29,6 +31,19 @@
 		product: Stripe.Product;
 		price: Stripe.Price;
 	}[];
+
+	$: {
+		console.log(
+			'Fetching products & prices from Stripe: \nproducts:',
+			data.products,
+			'\nprices:',
+			data.prices
+		);
+		// update products store:
+		productsStore.set(data.products);
+		// update prices store:
+		pricesStore.set(data.prices);
+	}
 
 	async function checkout() {
 		// TODO:

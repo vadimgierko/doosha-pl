@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { cart, resetCart } from '$lib/stores/cart';
-	import { products } from '$lib/stores/products';
+	import { products } from '$lib/stores/products.js';
+	import { prices } from '$lib/stores/prices.js';
 	import type Stripe from 'stripe';
 
 	// TODO: CONVERT THIS REACT CODE & USE ITS LOGIC:
@@ -28,6 +29,21 @@
 	// 		console.log("session is retrieved on success page => update inventory!");
 	// 	}
 	// }, [session]);
+
+	export let data;
+
+	$: {
+		console.log(
+			'Fetching products & prices from Stripe: \nproducts:',
+			data.products,
+			'\nprices:',
+			data.prices
+		);
+		// update products store:
+		products.set(data.products);
+		// update prices store:
+		prices.set(data.prices);
+	}
 
 	onMount(() => {
 		try {

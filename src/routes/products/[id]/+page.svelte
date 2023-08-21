@@ -2,14 +2,15 @@
 	import { page } from '$app/stores';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
-	import { products } from '../../../lib/stores/products';
-	import { cart } from '../../../lib/stores/cart';
+	import { products } from '$lib/stores/products';
+	import { prices } from '$lib/stores/prices.js';
+	import { cart } from '$lib/stores/cart';
 
 	export let data;
 
 	const productId = $page.params.id;
-	const product = $products.find((p) => p.id === productId);
-	const price = data.prices.find((p) => p.product === productId);
+	const {product} = data;
+	const price = $prices.find((p) => p.product === productId);
 
 	$: product && price
 		? console.log(
@@ -18,7 +19,9 @@
 				'\nproduct:',
 				product,
 				'\nprice:',
-				price
+				price,
+				"\nprices",
+				data.prices
 		  )
 		: console.error(`PRODUCT PAGE: There is no product data of id ${productId}...`);
 
