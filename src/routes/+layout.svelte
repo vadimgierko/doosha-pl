@@ -1,20 +1,5 @@
 <script>
 	import { cart } from '$lib/stores/cart';
-	import { products } from '$lib/stores/products';
-
-	// products & prices fetched on server before app mounts:
-	export let data;
-
-	$: {
-		console.log(
-			'Fetching products & prices from Stripe: \nproducts:',
-			data.products,
-			'\nprices:',
-			data.prices
-		);
-		// init products store:
-		products.set(data.products);
-	}
 </script>
 
 <nav>

@@ -1,7 +1,6 @@
 import { STRIPE_SECRET_KEY } from '$env/static/private';
 import Stripe from 'stripe';
 
-// THIS LOADS PRODUCTS & PRICES & SHARES IT GLOBALLY FOR THE WHOLE APP:
 export async function load() {
 	const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
 

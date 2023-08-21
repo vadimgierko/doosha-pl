@@ -1,13 +1,26 @@
 <script lang="ts">
 	import Card from '$lib/components/Card.svelte';
 	import { products } from '$lib/stores/products.js';
+	import { prices } from '$lib/stores/prices.js';
 
 	export let data;
-	const { prices } = data;
 
 	function getPrice(productId: string) {
-		const price = prices.find((p) => p.product === productId);
+		const price = data.prices.find((p) => p.product === productId);
 		return price;
+	}
+
+	$: {
+		console.log(
+			'Fetching products & prices from Stripe: \nproducts:',
+			data.products,
+			'\nprices:',
+			data.prices
+		);
+		// update products store:
+		products.set(data.products);
+		// update prices store:
+		prices.set(data.prices);
 	}
 </script>
 
