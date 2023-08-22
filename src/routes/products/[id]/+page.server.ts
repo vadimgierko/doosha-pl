@@ -1,11 +1,6 @@
-import { STRIPE_SECRET_KEY } from '$env/static/private';
-import Stripe from 'stripe';
-import type { PageServerLoad } from './$types';
+import prices from '$lib/server/prices';
+import products from '$lib/server/products';
 
-export const load: PageServerLoad = async ({params}) => {
-	const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
-
-	const product = await stripe.products.retrieve(params.id)
-
-	return { product };
+export async function load() {
+	return { products: await products.fetchAndUnreserve(), prices: await prices.fetch() };
 }

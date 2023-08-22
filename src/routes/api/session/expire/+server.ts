@@ -3,13 +3,14 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const data = await request.json();
-	const prices: string[] = data.prices;
-	const URL = data.url;
-	console.log('chekout prices:', prices);
+	console.log({ data });
+	const { sessionId } = data;
+	console.log({ sessionId });
 
-	const newSession = await session.create(prices, URL);
+	const expiredSession = await session.expire(sessionId);
+	console.log({ expiredSession });
 
-	return new Response(JSON.stringify(newSession), {
+	return new Response(JSON.stringify(expiredSession), {
 		status: 200,
 		headers: { 'content-type': 'application/json' }
 	});
