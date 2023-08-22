@@ -79,7 +79,7 @@
 			// 3. create checkout session:
 			console.log('creating a new session...');
 
-			await fetch('/api/checkout', {
+			const session: Stripe.Checkout.Session = await fetch('/api/session/create', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -88,46 +88,38 @@
 					prices: cartProductsAndPrices.map((p) => p.price.id),
 					url: $page.url.origin // we need to pass this for dynamic /success & /cancel URLs defined checkout API route
 				})
-			})
-				.then((data) => data.json())
-				.then(async (data) => {
-					// session object:
-					const session: Stripe.Checkout.Session = data;
-					console.log({ session });
+			}).then((data) => data.json());
 
-					// 4. reserve products:
-					console.log('reserving products...');
+			console.log({ session });
 
-					await fetch('/api/products/reserve', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							ids: $cart,
-							sessionId: session.id,
-							timestamp: Date.now() + 31 * 60 * 1000 // session.expires_at
-						})
-					})
-						.then((data) => data.json())
-						.then((reservedProducts: Stripe.Product[]) => {
-							console.log({ reservedProducts });
-							// update products store with archived products:
-							productsStore.update((n) =>
-								n.map((p) =>
-									$cart.includes(p.id) ? reservedProducts.filter((a) => a.id === p.id)[0] : p
-								)
-							);
-						});
+			// 4. reserve products:
+			console.log('reserving products...');
 
-					if (session.url) {
-						console.log('new session object:', session);
-						// redirect to stripe checkout:
-						window.location.replace(session.url);
-					} else {
-						alert("Checkout session wasn't created because of some kind of error...");
-					}
-				});
+			const reservedProducts: Stripe.Product[] = await fetch('/api/products/reserve', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					ids: $cart,
+					sessionId: session.id,
+					timestamp: Date.now() + 31 * 60 * 1000 // session.expires_at
+				})
+			}).then((data) => data.json());
+
+			console.log({ reservedProducts });
+			// update products store with archived products:
+			productsStore.update((n) =>
+				n.map((p) => ($cart.includes(p.id) ? reservedProducts.filter((a) => a.id === p.id)[0] : p))
+			);
+
+			if (session.url) {
+				console.log('new session object:', session);
+				// redirect to stripe checkout:
+				window.location.replace(session.url);
+			} else {
+				alert("Checkout session wasn't created because of some kind of error...");
+			}
 		} catch (error) {
 			console.error(error);
 			alert(error);
@@ -161,6 +153,12 @@
 				{#if !product.active}
 					<span style="color:red"
 						>(Product is not available at the moment... Remove it to proceed tho checkout.)</span
+					>
+				{/if}
+
+				{#if product.metadata.timestamp}
+					<span style="color:red"
+						>(Product is reserved until {new Date(Number(product.metadata.timestamp))})</span
 					>
 				{/if}
 
