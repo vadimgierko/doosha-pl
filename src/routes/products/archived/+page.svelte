@@ -1,18 +1,10 @@
 <script lang="ts">
 	import { products } from '$lib/stores/products.js';
+	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices.js';
 
 	export let data;
 
-	$: {
-		console.log(
-			'Fetching products & prices from Stripe: \nproducts:',
-			data.products,
-			'\nprices:',
-			data.prices
-		);
-		// update products store:
-		products.set(data.products);
-	}
+	$: logAndUpdateFetchedProductsAndPrices(data);
 </script>
 
 <h1 style="text-align: center;">Archived Products</h1>

@@ -2,30 +2,26 @@
 	import { page } from '$app/stores';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
-	import { products } from '$lib/stores/products';
-	import { prices } from '$lib/stores/prices.js';
 	import { cart } from '$lib/stores/cart';
+	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
 
 	const productId = $page.params.id;
-	const {product} = data;
-	const price = $prices.find((p) => p.product === productId);
+	const { products, prices } = data;
+	console.log({ products, prices });
+	const product = products.find((p) => p.id === productId);
+	console.log({ product });
+	const price = prices.find((p) => p.product === productId);
 
-	$: product && price
-		? console.log(
-				'PRODUCT PAGE: \nproduct id:',
-				productId,
-				'\nproduct:',
-				product,
-				'\nprice:',
-				price,
-				"\nprices",
-				data.prices
-		  )
-		: console.error(`PRODUCT PAGE: There is no product data of id ${productId}...`);
+	$: logAndUpdateFetchedProductsAndPrices(data);
 
 	$: isProductInCart = product ? $cart.find((id) => id === product.id) : undefined;
+	$: reservedUntil = product
+		? product.metadata.sessionId
+			? new Date(Number(product.metadata.timestamp))
+			: null
+		: null;
 </script>
 
 {#if product && price && price.unit_amount}
@@ -39,7 +35,11 @@
 			<p style="color: grey">product id: {productId}</p>
 			<p>{product.description}</p>
 			{#if product.active}
-				{#if isProductInCart}
+				{#if reservedUntil}
+					<p style="color:red">
+						Product is reserved until {reservedUntil}
+					</p>
+				{:else if isProductInCart}
 					<RemoveFromCartButton id={product.id} />
 				{:else}
 					<AddToCartButton id={product.id} />

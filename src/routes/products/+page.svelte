@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/components/Card.svelte';
 	import { products } from '$lib/stores/products.js';
-	import { prices } from '$lib/stores/prices.js';
+	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
 
@@ -10,18 +10,7 @@
 		return price;
 	}
 
-	$: {
-		console.log(
-			'Fetching products & prices from Stripe: \nproducts:',
-			data.products,
-			'\nprices:',
-			data.prices
-		);
-		// update products store:
-		products.set(data.products);
-		// update prices store:
-		prices.set(data.prices);
-	}
+	$: logAndUpdateFetchedProductsAndPrices(data);
 </script>
 
 <h1 style="text-align: center;">Products</h1>

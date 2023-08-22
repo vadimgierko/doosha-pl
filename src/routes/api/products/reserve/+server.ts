@@ -3,11 +3,11 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const data = await request.json();
-	const { ids } = data;
+	const { ids, sessionId, timestamp } = data;
 
-	const archivedProducts = await products.archive(ids);
+	const reservedProducts = await products.reserve(ids, sessionId, timestamp);
 
-	return new Response(JSON.stringify(archivedProducts), {
+	return new Response(JSON.stringify(reservedProducts), {
 		status: 200,
 		headers: { 'content-type': 'application/json' }
 	});

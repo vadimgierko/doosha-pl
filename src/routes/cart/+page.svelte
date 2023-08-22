@@ -1,12 +1,10 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
 	import { cart } from '$lib/stores/cart';
-	import {products as productsStore} from "$lib/stores/products";
-	import { prices as pricesStore } from '$lib/stores/prices.js';
+	import { products as productsStore } from '$lib/stores/products';
 	import { page } from '$app/stores';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
-
-	console.log('page:', $page);
+	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
 
@@ -32,75 +30,99 @@
 		price: Stripe.Price;
 	}[];
 
-	$: {
-		console.log(
-			'Fetching products & prices from Stripe: \nproducts:',
-			data.products,
-			'\nprices:',
-			data.prices
-		);
-		// update products store:
-		productsStore.set(data.products);
-		// update prices store:
-		pricesStore.set(data.prices);
-	}
+	$: logAndUpdateFetchedProductsAndPrices(data);
 
 	async function checkout() {
 		// TODO:
 		// before redirecting for payment,
-		// 0. fetch products
+		// 0. fetch products once again !!!
 
 		// 1. check if products are available (active: true):
-		const areAllProductsAvailable = cartProductsAndPrices.every((p) => p.product.active === true);
+		const areAllProductsActive = cartProductsAndPrices.every((p) => p.product.active === true);
 
-		if (areAllProductsAvailable) {
-			console.log('all products in cart are available! Proceed checkout...');
-
-			// 2. if true, check if they're not in the another session
-			// 3. if true, add session id to metadata of products
-
-			// 4. create checkout session:
-			try {
-				await fetch('/api/checkout', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						prices: cartProductsAndPrices.map((p) => p.price.id),
-						url: $page.url.origin // we need to pass this for dynamic /success & /cancel URLs defined checkout API route
-					})
-				})
-					.then((data) => data.json())
-					.then((data) => {
-						// session object:
-						const session = data;
-
-						if (session.url) {
-							console.log('new session object:', session);
-							// redirect to stripe checkout:
-							window.location.replace(session.url);
-						} else {
-							alert("Checkout session wasn't created because of some kind of error...");
-						}
-					});
-			} catch (error) {
-				console.error(error);
-				alert(error);
-			}
-		} else {
+		if (!areAllProductsActive) {
 			const unavailableProducts = cartProductsAndPrices.filter((p) => p.product.active !== true);
 
-			console.error(
-				`Some of products in the cart are not available at the moment: ${unavailableProducts
-					.map((p) => p.product.name)
-					.join(', ')}. Remove them to proceed checkout.`
+			const message = `Some of products in the cart are not available at the moment: ${unavailableProducts
+				.map((p) => p.product.name)
+				.join(', ')}. Remove them to proceed checkout.`;
+
+			console.error(message);
+			return alert(message);
+		}
+
+		// 2. check if products are not in the another session:
+		const areAllProductsNotReserved = cartProductsAndPrices.every((p) => {
+			const metadata = p.product.metadata;
+
+			if (Object.keys(metadata).length === 0 || !metadata.sessionId) {
+				return true;
+			}
+
+			return false;
+		});
+
+		if (!areAllProductsNotReserved) {
+			const reservedProducts = cartProductsAndPrices.filter((p) => p.product.metadata.sessionId);
+
+			const message = `Some of products in the cart are reserved at the moment: ${reservedProducts
+				.map((p) => p.product.name)
+				.join(', ')}. Remove them or wait until they will be unreserved to proceed checkout.`;
+
+			console.error(message);
+			return alert(message);
+		}
+
+		console.log('All the products in cart are not reserved & available! Proceed checkout...');
+
+		try {
+			// 3. create checkout session:
+			console.log('creating a new session...');
+
+			const session: Stripe.Checkout.Session = await fetch('/api/session/create', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					prices: cartProductsAndPrices.map((p) => p.price.id),
+					url: $page.url.origin // we need to pass this for dynamic /success & /cancel URLs defined checkout API route
+				})
+			}).then((data) => data.json());
+
+			console.log({ session });
+
+			// 4. reserve products:
+			console.log('reserving products...');
+
+			const reservedProducts: Stripe.Product[] = await fetch('/api/products/reserve', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					ids: $cart,
+					sessionId: session.id,
+					timestamp: Date.now() + 31 * 60 * 1000 // session.expires_at
+				})
+			}).then((data) => data.json());
+
+			console.log({ reservedProducts });
+			// update products store with archived products:
+			productsStore.update((n) =>
+				n.map((p) => ($cart.includes(p.id) ? reservedProducts.filter((a) => a.id === p.id)[0] : p))
 			);
-			alert(
-				`Some of products in the cart are not available at the moment: ${unavailableProducts
-					.map((p) => p.product.name)
-					.join(', ')}. Remove them to proceed checkout.`
-			);
+
+			if (session.url) {
+				console.log('new session object:', session);
+				// redirect to stripe checkout:
+				window.location.replace(session.url);
+			} else {
+				alert("Checkout session wasn't created because of some kind of error...");
+			}
+		} catch (error) {
+			console.error(error);
+			alert(error);
 		}
 	}
 </script>
@@ -131,6 +153,12 @@
 				{#if !product.active}
 					<span style="color:red"
 						>(Product is not available at the moment... Remove it to proceed tho checkout.)</span
+					>
+				{/if}
+
+				{#if product.metadata.timestamp}
+					<span style="color:red"
+						>(Product is reserved until {new Date(Number(product.metadata.timestamp))})</span
 					>
 				{/if}
 
