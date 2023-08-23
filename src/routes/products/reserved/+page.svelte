@@ -8,11 +8,11 @@
 </script>
 
 <h2 style="text-align: center;">
-	Archived ({$products.filter((p) => p.active === false).length})
+	Reserved ({$products.filter((p) => p.metadata && p.metadata.timestamp).length})
 </h2>
 
 <div class="products-list">
-	{#each $products.filter((p) => p.active === false) as product}
+	{#each $products.filter((p) => p.metadata && p.metadata.timestamp) as product}
 		<div class="product-card">
 			<div class="product-card-img">
 				<a href={`/products/${product.id}`}

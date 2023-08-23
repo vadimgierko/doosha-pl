@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { activeSession, resetSession } from '$lib/stores/activeSession';
 	import { cart } from '$lib/stores/cart';
 	import type Stripe from 'stripe';
 	import { onMount } from 'svelte';
@@ -10,6 +11,7 @@
 		console.log('expiring canceled session & unreserving not purchased products...', sessionId);
 
 		try {
+			// expire session:
 			const expiredSession = await fetch('/api/session/expire', {
 				method: 'POST',
 				headers: {
@@ -20,6 +22,7 @@
 				})
 			}).then((data) => data.json());
 
+			// unreserve products:
 			const unreservedProducts: Stripe.Product[] = await fetch('/api/products/unreserve', {
 				method: 'POST',
 				headers: {
@@ -27,6 +30,13 @@
 				},
 				body: JSON.stringify({ ids: $cart })
 			}).then((data) => data.json());
+
+			// if session was an active session stored in local storage => reset it:
+			if ($activeSession) {
+				if ($activeSession.id === expiredSession.id) {
+					resetSession()
+				}
+			}
 
 			console.log({ unreservedProducts });
 		} catch (error) {

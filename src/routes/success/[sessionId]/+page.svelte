@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { cart, resetCart } from '$lib/stores/cart';
 	import type Stripe from 'stripe';
+	import { resetSession } from '$lib/stores/activeSession';
 
 	async function archiveProducts() {
 		console.log('archiving purchased products...');
@@ -20,6 +21,7 @@
 			console.log({ archivedProducts });
 
 			resetCart();
+			resetSession();
 		} catch (error) {
 			console.error(error);
 			alert(error);

@@ -4,7 +4,7 @@ import { browser } from '$app/environment';
 const initCart: string[] = [];
 
 export const cart = writable(initCart);
-export const CART_NAME = 'doosha-cart';
+const CART_NAME = 'doosha-cart';
 
 export function addToCart(id: string) {
 	cart.update((n) => [...n, id]);
