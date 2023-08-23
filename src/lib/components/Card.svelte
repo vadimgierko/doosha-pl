@@ -12,13 +12,13 @@
 
 <div class="product-card">
 	<div class="product-card-img">
-		<a href={`/product/${product.id}`}
+		<a href={`/products/${product.id}`}
 			><img width="100%" src={product.images[0]} alt={product.name} /></a
 		>
 	</div>
 	<div class="product-card-header">
 		<header>
-			<a href={`/product/${product.id}`}
+			<a href={`/products/${product.id}`}
 				><h3 class="product-card-title">
 					<span style="margin-right: 1em">{product.name}</span>
 					{#if price && price.unit_amount}

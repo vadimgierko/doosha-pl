@@ -26,10 +26,10 @@ if (browser) {
 
 	// if exists, populate cart storage:
 	if (localStorageActiveSession) {
-		const storedSession: Session = JSON.parse(localStorageActiveSession);
+		const storedSession: Session | null = JSON.parse(localStorageActiveSession);
 
 		// check saved active session $ reset if needed:
-		if (storedSession.timestamp && storedSession.timestamp < Date.now()) {
+		if (storedSession && storedSession.timestamp && storedSession.timestamp < Date.now()) {
 			console.log(`Saved active session ${storedSession.id} is expired now => reset store...`);
 			resetSession();
 		} else {

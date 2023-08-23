@@ -151,7 +151,7 @@
 			</div>
 			<div class="product-details">
 				<header class="product-title">
-					<a href={`/products/${product.id}`}><h3>{product.name}</h3> </a>
+					<a href={`/product/${product.id}`}><h3>{product.name}</h3> </a>
 				</header>
 
 				{#if price.unit_amount}

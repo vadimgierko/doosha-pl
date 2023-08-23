@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Card from '$lib/components/Card.svelte';
-	import { products } from '$lib/stores/products.js';
+	import { products } from '$lib/stores/products';
 	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
