@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
 	import { cart } from '$lib/stores/cart';
+	import { activeSession, resetSession, saveSession } from '$lib/stores/activeSession';
 	import { products as productsStore } from '$lib/stores/products';
 	import { page } from '$app/stores';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
@@ -34,7 +35,6 @@
 
 	async function checkout() {
 		// TODO:
-		// before redirecting for payment,
 		// 0. fetch products once again !!!
 
 		// 1. check if products are available (active: true):
@@ -92,6 +92,8 @@
 
 			console.log({ session });
 
+			const timestamp = Date.now() + 31 * 60 * 1000;
+
 			// 4. reserve products:
 			console.log('reserving products...');
 
@@ -103,7 +105,7 @@
 				body: JSON.stringify({
 					ids: $cart,
 					sessionId: session.id,
-					timestamp: Date.now() + 31 * 60 * 1000 // session.expires_at
+					timestamp: timestamp // session.expires_at
 				})
 			}).then((data) => data.json());
 
@@ -115,8 +117,14 @@
 
 			if (session.url) {
 				console.log('new session object:', session);
+				// save session in local storage:
+				saveSession({
+					id: session.id,
+					url: session.url,
+					timestamp: timestamp
+				});
 				// redirect to stripe checkout:
-				window.location.replace(session.url);
+				window.location.assign(session.url);
 			} else {
 				alert("Checkout session wasn't created because of some kind of error...");
 			}
@@ -180,6 +188,20 @@
 		</p>
 
 		<button class="checkout-button" on:click={() => checkout()}>go to checkout</button>
+
+		{#if $activeSession && $activeSession.timestamp && $activeSession.timestamp > Date.now()}
+			<hr />
+			<p style="text-align:center;color:green">
+				You have not finished purchase valid until {new Date(Number($activeSession.timestamp))}.
+				Press the button below to continue previous checkout.
+			</p>
+
+			<button
+				class="checkout-button"
+				on:click={() => ($activeSession ? window.location.assign($activeSession.url) : {})}
+				>continue previous checkout</button
+			>
+		{/if}
 	</div>
 {/if}
 

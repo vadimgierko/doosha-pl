@@ -13,10 +13,12 @@
 	$: logAndUpdateFetchedProductsAndPrices(data);
 </script>
 
-<h1 style="text-align: center;">Products</h1>
+<h2 style="text-align: center;">
+	Active ({$products.filter((p) => p.active === true && !p.metadata.timestamp).length})
+</h2>
 
 <div class="products-list">
-	{#each $products.filter((p) => p.active === true) as product}
+	{#each $products.filter((p) => p.active === true && !p.metadata.timestamp) as product}
 		<Card {product} price={getPrice(product.id)} />
 	{/each}
 </div>

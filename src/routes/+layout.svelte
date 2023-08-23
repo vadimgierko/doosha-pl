@@ -7,7 +7,7 @@
 
 	<div>
 		<a href="/products">products</a> |
-		<a href="/products/archived">archived</a> |
+
 		<a class="icon" href="/cart"
 			><svg
 				xmlns="http://www.w3.org/2000/svg"
