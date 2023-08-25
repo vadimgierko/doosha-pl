@@ -1,4 +1,5 @@
 <script>
+	import ScrollToTop from '$lib/components/ScrollToTop.svelte';
 	import { cart } from '$lib/stores/cart';
 </script>
 
@@ -41,7 +42,10 @@
 	</div>
 </nav>
 
-<main><slot /></main>
+<main>
+	<slot />
+	<ScrollToTop />
+</main>
 
 <footer style="text-align: center;">&copy; 2023 doosha.pl</footer>
 

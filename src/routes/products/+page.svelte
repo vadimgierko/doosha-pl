@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Card from '$lib/components/Card.svelte';
@@ -33,6 +34,8 @@
 		category = searchParams.get('category') ? (searchParams.get('category') as Category) : 'all';
 		status = searchParams.get('status') ? (searchParams.get('status') as Status) : 'active';
 	});
+
+	console.log();
 
 	$: {
 		if (category !== 'all') {
@@ -89,18 +92,22 @@
 </nav> -->
 
 <div id="filter">
-	Category:
-	<select bind:value={category}>
-		{#each allowedCategories as c}
-			<option value={c}>{c}</option>
-		{/each}
-	</select>
-	Status:
-	<select bind:value={status}>
-		{#each allowedStatuses as s}
-			<option value={s}>{s}</option>
-		{/each}
-	</select>
+	<div>
+		Category:
+		<select bind:value={category}>
+			{#each allowedCategories as c}
+				<option value={c}>{c}</option>
+			{/each}
+		</select>
+	</div>
+	<div>
+		Status:
+		<select bind:value={status}>
+			{#each allowedStatuses as s}
+				<option value={s}>{s}</option>
+			{/each}
+		</select>
+	</div>
 </div>
 
 <div class="products-list">
@@ -111,8 +118,13 @@
 
 <style>
 	#filter {
-		text-align: center;
+		justify-content: center;
+		display: flex;
 		margin-bottom: 1em;
+	}
+
+	#filter div:not(:last-child) {
+		margin-right: 1em;
 	}
 
 	.products-list {
@@ -142,6 +154,15 @@
 			display: grid;
 			grid-template-columns: repeat(1, 1fr);
 			gap: 3em; /* Adjust the gap between cards as needed */
+		}
+
+		#filter {
+			display: block;
+			text-align: center;
+		}
+
+		#filter div:not(:last-child) {
+			margin-right: 0;
 		}
 	}
 </style>

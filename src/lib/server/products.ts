@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
 
 async function fetch(ids?: string[]) {
-	const products = (await stripe.products.list({ ids })).data;
+	const products = (await stripe.products.list({ ids, limit: 100 })).data;
 
 	return products;
 }
