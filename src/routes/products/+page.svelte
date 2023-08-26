@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Card from '$lib/components/Card.svelte';
 	import { products } from '$lib/stores/products';
 	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
-	import type Stripe from 'stripe';
-	import { onMount } from 'svelte';
 
 	export let data;
 
@@ -18,31 +15,31 @@
 	$: logAndUpdateFetchedProductsAndPrices(data);
 
 	//========== FILTER =============//
-
-	$: searchParams = $page.url.searchParams;
-
 	type Category = 'all' | 'candlesticks' | 'candles';
 	const allowedCategories: Category[] = ['all', 'candlesticks', 'candles'];
 
 	type Status = 'active' | 'reserved' | 'archived';
 	const allowedStatuses: Status[] = ['active', 'reserved', 'archived'];
 
-	let category: Category = 'all';
-	let status: Status = 'active';
+	$: category = $page.url.searchParams.get('category')
+		? ($page.url.searchParams.get('category') as string)
+		: 'all';
+	$: status = $page.url.searchParams.get('status')
+		? ($page.url.searchParams.get('status') as string)
+		: 'active';
 
-	onMount(() => {
-		category = searchParams.get('category') ? (searchParams.get('category') as Category) : 'all';
-		status = searchParams.get('status') ? (searchParams.get('status') as Status) : 'active';
-	});
-
-	console.log();
-
-	$: {
-		if (category !== 'all') {
+	function updateCategory(
+		e: Event & {
+			currentTarget: EventTarget & HTMLSelectElement;
+		}
+	) {
+		const target = e.target as HTMLSelectElement;
+		const c = target.value;
+		if (c !== 'all') {
 			if (status !== 'active') {
-				goto(`?category=${category}&status=${status}`);
+				goto(`?category=${c}&status=${status}`);
 			} else {
-				goto(`?category=${category}`);
+				goto(`?category=${c}`);
 			}
 		} else {
 			if (status !== 'active') {
@@ -53,7 +50,27 @@
 		}
 	}
 
-	$: console.log('category:', category, 'status:', status);
+	function updateStatus(
+		e: Event & {
+			currentTarget: EventTarget & HTMLSelectElement;
+		}
+	) {
+		const target = e.target as HTMLSelectElement;
+		const s = target.value;
+		if (category !== 'all') {
+			if (s !== 'active') {
+				goto(`?category=${category}&status=${s}`);
+			} else {
+				goto(`?category=${category}`);
+			}
+		} else {
+			if (s !== 'active') {
+				goto(`?status=${s}`);
+			} else {
+				goto('/products');
+			}
+		}
+	}
 
 	$: filteredProducts = $products
 		.filter((p) => {
@@ -94,7 +111,7 @@
 <div id="filter">
 	<div>
 		Category:
-		<select bind:value={category}>
+		<select value={category} on:change={(e) => updateCategory(e)}>
 			{#each allowedCategories as c}
 				<option value={c}>{c}</option>
 			{/each}
@@ -102,7 +119,7 @@
 	</div>
 	<div>
 		Status:
-		<select bind:value={status}>
+		<select value={status} on:change={(e) => updateStatus(e)}>
 			{#each allowedStatuses as s}
 				<option value={s}>{s}</option>
 			{/each}
