@@ -7,7 +7,7 @@
 	export let product: Stripe.Product;
 	export let price: Stripe.Price | undefined;
 
-	$: isProductInCart = $cart.find((id) => id === product.id);
+	$: isProductInCart = $cart.find((r) => r.id === product.id);
 </script>
 
 <div class="product-card">

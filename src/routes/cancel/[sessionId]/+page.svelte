@@ -28,13 +28,13 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ids: $cart })
+				body: JSON.stringify({ ids: $cart.map((r) => r.id) })
 			}).then((data) => data.json());
 
 			// if session was an active session stored in local storage => reset it:
 			if ($activeSession) {
 				if ($activeSession.id === expiredSession.id) {
-					resetSession()
+					resetSession();
 				}
 			}
 

@@ -16,7 +16,7 @@
 
 	$: logAndUpdateFetchedProductsAndPrices(data);
 
-	$: isProductInCart = product ? $cart.find((id) => id === product.id) : undefined;
+	$: isProductInCart = product ? $cart.find((r) => r.id === product.id) : undefined;
 	$: reservedUntil = product
 		? product.metadata.sessionId
 			? new Date(Number(product.metadata.timestamp))

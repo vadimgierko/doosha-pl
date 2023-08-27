@@ -14,7 +14,7 @@ async function fetch(id: string) {
 async function archive(productId: string) {
 	const archivedProduct = await stripe.products.update(productId, {
 		active: false,
-		metadata: ''
+		metadata: { sessionId: '', timestamp: '' } // we cannot totally clear metadata, because there is (will be) productType prop
 	});
 
 	return archivedProduct;
@@ -30,7 +30,7 @@ async function reserve(productId: string, sessionId: string, timestamp: number) 
 
 async function unreserve(productId: string) {
 	const unreservedProduct = await stripe.products.update(productId, {
-		metadata: '' // to clear metadata or some of its keys => add empty string to it
+		metadata: { sessionId: '', timestamp: '' } // to clear metadata or some of its keys => add empty string to it
 	});
 
 	return unreservedProduct;

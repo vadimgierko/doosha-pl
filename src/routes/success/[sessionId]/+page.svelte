@@ -4,16 +4,24 @@
 	import type Stripe from 'stripe';
 	import { resetSession } from '$lib/stores/activeSession';
 
-	async function archiveProducts() {
-		console.log('archiving purchased products...');
+	export let data;
+
+	const { products } = data;
+
+	async function archiveCandleSticks() {
+		console.log('archiving purchased candlesticks...');
 
 		try {
+			const candlesticksIds = products.filter((p) => !p.metadata.productType).map((p) => p.id);
+			const candlesticksIdsFromTheCart = $cart
+				.filter((r) => candlesticksIds.includes(r.id))
+				.map((r) => r.id);
 			const res = await fetch('/api/products/archive', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ids: $cart })
+				body: JSON.stringify({ ids: candlesticksIdsFromTheCart })
 			});
 
 			const archivedProducts: Stripe.Product[] = await res.json();
@@ -28,7 +36,7 @@
 		}
 	}
 
-	onMount(() => archiveProducts());
+	onMount(() => archiveCandleSticks());
 </script>
 
 <h1>Thank you for your purchase!</h1>

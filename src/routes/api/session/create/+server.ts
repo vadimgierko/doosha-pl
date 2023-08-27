@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const data = await request.json();
-	const prices: string[] = data.prices;
+	const prices: { id: string; qty: number }[] = data.prices;
 	const URL = data.url;
 	console.log('chekout prices:', prices);
 
