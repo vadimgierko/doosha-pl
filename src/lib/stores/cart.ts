@@ -1,18 +1,23 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-const initCart: string[] = [];
+interface CartRecord {
+	id: string;
+	qty: number;
+}
+
+const initCart: CartRecord[] = [];
 
 export const cart = writable(initCart);
 const CART_NAME = 'doosha-cart';
 
 export function addToCart(id: string) {
-	cart.update((n) => [...n, id]);
+	cart.update((n) => [...n, { id, qty: 1 }]);
 	console.log('product with the id:', id, 'was added to cart.');
 }
 
 export function removeFromCart(id: string) {
-	cart.update((n) => n.filter((itemId) => itemId !== id));
+	cart.update((records) => records.filter((r) => r.id !== id));
 	console.log('product with the id:', id, 'was removed from cart.');
 }
 
@@ -33,7 +38,7 @@ if (browser) {
 
 	// when cart items are updated => log it & update local storage:
 	cart.subscribe((records) => {
-		console.log('cart store records update:', records);
+		console.log('cart records update:', records);
 		// update local storage:
 		localStorage[CART_NAME] = JSON.stringify(records);
 	});

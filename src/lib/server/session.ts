@@ -5,9 +5,9 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
 	apiVersion: '2022-11-15'
 });
 
-async function create(prices: string[], URL: string) {
+async function create(prices: { id: string; qty: number }[], URL: string) {
 	const session = await stripe.checkout.sessions.create({
-		line_items: prices.map((p) => ({ price: p, quantity: 1 })), // stripe wants: [ { price: "1", quantity: 6 }, { price: "2", quantity: 3 } ]
+		line_items: prices.map((p) => ({ price: p.id, quantity: p.qty })), // stripe wants: [ { price: "1", quantity: 6 }, { price: "2", quantity: 3 } ]
 		submit_type: 'pay',
 		mode: 'payment',
 		// HERE BELOW YOU CAN ADD ANY AVAILABLE PAYMENT METHODS TO AN ARRAY:

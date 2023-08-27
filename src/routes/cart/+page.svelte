@@ -22,13 +22,15 @@
 	}
 
 	$: cartProductsAndPrices = $cart
-		.map((id) => ({
-			product: getProduct(id),
-			price: getPrice(id)
+		.map((record) => ({
+			product: getProduct(record.id),
+			price: getPrice(record.id),
+			qty: record.qty
 		}))
 		.filter((record) => record.product !== undefined && record.price !== undefined) as {
 		product: Stripe.Product;
 		price: Stripe.Price;
+		qty: number;
 	}[];
 
 	$: logAndUpdateFetchedProductsAndPrices(data);
@@ -51,21 +53,25 @@
 			return alert(message);
 		}
 
-		// 2. check if products are not in the another session:
-		const areAllProductsNotReserved = cartProductsAndPrices.every((p) => {
-			const metadata = p.product.metadata;
+		// 2. check if CANDLESTICKS products are not in the another session (because they are singular products):
+		const areCandlescticksNotReserved = cartProductsAndPrices
+			.filter((p) => !p.product.metadata.productType)
+			.every((p) => {
+				const metadata = p.product.metadata;
 
-			if (Object.keys(metadata).length === 0 || !metadata.sessionId) {
-				return true;
-			}
+				if (Object.keys(metadata).length === 0 || !metadata.sessionId) {
+					return true;
+				}
 
-			return false;
-		});
+				return false;
+			});
 
-		if (!areAllProductsNotReserved) {
-			const reservedProducts = cartProductsAndPrices.filter((p) => p.product.metadata.sessionId);
+		if (!areCandlescticksNotReserved) {
+			const reservedCandlesticks = cartProductsAndPrices.filter(
+				(p) => p.product.metadata.sessionId
+			);
 
-			const message = `Some of products in the cart are reserved at the moment: ${reservedProducts
+			const message = `Some of products in the cart are reserved at the moment: ${reservedCandlesticks
 				.map((p) => p.product.name)
 				.join(', ')}. Remove them or wait until they will be unreserved to proceed checkout.`;
 
@@ -73,7 +79,7 @@
 			return alert(message);
 		}
 
-		console.log('All the products in cart are not reserved & available! Proceed checkout...');
+		console.log('All candlesticks in cart are not reserved & available! Proceed checkout...');
 
 		try {
 			// 3. create checkout session:
@@ -85,7 +91,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					prices: cartProductsAndPrices.map((p) => p.price.id),
+					prices: cartProductsAndPrices.map((p) => ({ id: p.price.id, qty: p.qty })),
 					url: $page.url.origin // we need to pass this for dynamic /success & /cancel URLs defined checkout API route
 				})
 			}).then((data) => data.json());
@@ -94,25 +100,33 @@
 
 			const timestamp = Date.now() + 31 * 60 * 1000;
 
-			// 4. reserve products:
-			console.log('reserving products...');
+			// 4. reserve candlesticks:
+			console.log('reserving candlesticks...');
 
-			const reservedProducts: Stripe.Product[] = await fetch('/api/products/reserve', {
+			const candlesticksIdsFromCart = cartProductsAndPrices
+				.filter((r) => !r.product.metadata.productType)
+				.map((r) => r.product.id);
+
+			const reservedCandlesticks: Stripe.Product[] = await fetch('/api/products/reserve', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					ids: $cart,
+					ids: candlesticksIdsFromCart,
 					sessionId: session.id,
 					timestamp: timestamp // session.expires_at
 				})
 			}).then((data) => data.json());
 
-			console.log({ reservedProducts });
-			// update products store with archived products:
+			console.log({ reservedCandlesticks });
+			// update products store with archived candlesticks:
 			productsStore.update((n) =>
-				n.map((p) => ($cart.includes(p.id) ? reservedProducts.filter((a) => a.id === p.id)[0] : p))
+				n.map((p) =>
+					candlesticksIdsFromCart.find((id) => id === p.id)
+						? reservedCandlesticks.filter((a) => a.id === p.id)[0]
+						: p
+				)
 			);
 
 			if (session.url) {
@@ -142,7 +156,7 @@
 {#if $cart.length === 0}
 	<p style="text-align:center">Cart is empty...</p>
 {:else}
-	{#each cartProductsAndPrices as { product, price }}
+	{#each cartProductsAndPrices as { product, price, qty }}
 		<div class="container">
 			<div style="min-width:100px; max-width:100px">
 				<a href={`/products/${product.id}`}>
@@ -151,7 +165,7 @@
 			</div>
 			<div class="product-details">
 				<header class="product-title">
-					<a href={`/product/${product.id}`}><h3>{product.name}</h3> </a>
+					<a href={`/products/${product.id}`}><h3>{product.name}</h3> </a>
 				</header>
 
 				{#if price.unit_amount}
@@ -164,13 +178,37 @@
 					>
 				{/if}
 
-				{#if product.metadata.timestamp}
+				<!-- IF THE PRODUCT IS A CANDLESTICK -->
+				{#if !product.metadata.productType && product.metadata.timestamp}
 					<span style="color:red"
 						>(Product is reserved until {new Date(Number(product.metadata.timestamp))})</span
 					>
 				{/if}
 
 				<p style="color: grey">{product.id}</p>
+
+				<!-- IF THE PRODUCT IS CANDLES => ADD - + BUTTONS -->
+				{#if product.metadata.productType && product.metadata.productType === 'candles'}
+					<div style="margin-bottom: 0.5em;">
+						<button
+							on:click={() => {
+								if (qty > 1) {
+									cart.update((records) =>
+										records.map((r) => (r.id === product.id ? { ...r, qty: r.qty - 1 } : r))
+									);
+								}
+							}}>-</button
+						>
+						{qty}
+						<button
+							on:click={() =>
+								cart.update((records) =>
+									records.map((r) => (r.id === product.id ? { ...r, qty: r.qty + 1 } : r))
+								)}>+</button
+						>
+					</div>
+				{/if}
+
 				<RemoveFromCartButton id={product.id} />
 			</div>
 		</div>
@@ -182,7 +220,7 @@
 		<p style="text-align: end;">
 			<strong>Sum:</strong>
 			{cartProductsAndPrices.reduce(
-				(sum, p) => (p.price.unit_amount ? sum + p.price.unit_amount / 100 : sum / 100),
+				(sum, p) => (p.price.unit_amount ? sum + (p.price.unit_amount * p.qty) / 100 : sum / 100),
 				0
 			)},-
 		</p>
