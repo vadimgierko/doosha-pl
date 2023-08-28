@@ -7,9 +7,9 @@
 	<a href="/" class="brand"><strong>doosha</strong></a>
 
 	<div>
-		<a href="/products">products</a> |
+		<a href="/sklep">sklep</a> |
 
-		<a class="icon" href="/cart"
+		<a class="icon" href="/koszyk"
 			><svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="16"

@@ -28,6 +28,8 @@
 	</div>
 </div>
 
+<p style="text-align:center;"><strong><a href="/sklep">Zajrzyj do sklepu!</a></strong></p>
+
 <style>
 	.avatar {
 		text-align: center;
