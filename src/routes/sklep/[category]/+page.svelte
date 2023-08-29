@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import Card from '$lib/components/Card.svelte';
+	import ProductCard from '$lib/components/ProductCard.svelte';
 
 	export let data;
 	const { products } = data;
@@ -20,7 +20,7 @@
 
 <div class="products-list">
 	{#each products as product}
-		<Card {product} price={getPrice(product.id)} />
+		<ProductCard {product} price={getPrice(product.id)} />
 	{/each}
 </div>
 

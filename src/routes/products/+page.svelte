@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import Card from '$lib/components/Card.svelte';
+	import ProductCard from '$lib/components/ProductCard.svelte';
 	import { products } from '$lib/stores/products';
 	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
@@ -129,7 +129,7 @@
 
 <div class="products-list">
 	{#each filteredProducts as product}
-		<Card {product} price={getPrice(product.id)} />
+		<ProductCard {product} price={getPrice(product.id)} />
 	{/each}
 </div>
 
