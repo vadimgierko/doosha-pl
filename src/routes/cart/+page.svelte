@@ -1,11 +1,9 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
 	import { cart } from '$lib/stores/cart';
-	import { activeSession, resetSession, saveSession } from '$lib/stores/activeSession';
-	import { products as productsStore } from '$lib/stores/products';
+	import { activeSession, saveSession } from '$lib/stores/activeSession';
 	import { page } from '$app/stores';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
-	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
 
@@ -32,8 +30,6 @@
 		price: Stripe.Price;
 		qty: number;
 	}[];
-
-	$: logAndUpdateFetchedProductsAndPrices(data);
 
 	async function checkout() {
 		// TODO:
@@ -120,14 +116,6 @@
 			}).then((data) => data.json());
 
 			console.log({ reservedCandlesticks });
-			// update products store with archived candlesticks:
-			productsStore.update((n) =>
-				n.map((p) =>
-					candlesticksIdsFromCart.find((id) => id === p.id)
-						? reservedCandlesticks.filter((a) => a.id === p.id)[0]
-						: p
-				)
-			);
 
 			if (session.url) {
 				console.log('new session object:', session);

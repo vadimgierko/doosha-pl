@@ -1,6 +1,3 @@
-<script>
-</script>
-
 <div class="avatar">
 	<img src="/lena-gierko-doosha-pl-avatar.jpg" alt="Lena Gierko Doosha pl avatar" />
 </div>
