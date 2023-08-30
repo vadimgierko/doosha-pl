@@ -3,23 +3,22 @@
 	import ProductCard from '$lib/components/ProductCard.svelte';
 
 	export let data;
-	const { products } = data;
-	const { category } = $page.params;
 
 	function getPrice(productId: string) {
 		const price = data.prices.find((p) => p.product === productId);
 		return price;
 	}
-
-	$: console.log({ category });
 </script>
 
 <header>
-	<h1 style="text-align: center;">{category === 'swieczniki' ? 'Świeczniki' : 'Świeczki'}</h1>
+	<h2 style="text-align: center;">
+		Kategoria: {$page.params.category === 'swieczniki' ? 'Świeczniki' : 'Świeczki'} ({data.products
+			.length})
+	</h2>
 </header>
 
 <div class="products-list">
-	{#each products as product}
+	{#each data.products as product}
 		<ProductCard {product} price={getPrice(product.id)} />
 	{/each}
 </div>

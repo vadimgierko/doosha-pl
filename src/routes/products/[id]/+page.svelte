@@ -3,7 +3,6 @@
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
 	import { cart } from '$lib/stores/cart';
-	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
 
@@ -13,8 +12,6 @@
 	const product = products.find((p) => p.id === productId);
 	console.log({ product });
 	const price = prices.find((p) => p.product === productId);
-
-	$: logAndUpdateFetchedProductsAndPrices(data);
 
 	$: isProductInCart = product ? $cart.find((r) => r.id === product.id) : undefined;
 	$: reservedUntil = product

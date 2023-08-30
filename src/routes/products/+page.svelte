@@ -2,8 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import ProductCard from '$lib/components/ProductCard.svelte';
-	import { products } from '$lib/stores/products';
-	import logAndUpdateFetchedProductsAndPrices from '$lib/utils/logAndUpdateFetchedProductsAndPrices';
 
 	export let data;
 
@@ -11,8 +9,6 @@
 		const price = data.prices.find((p) => p.product === productId);
 		return price;
 	}
-
-	$: logAndUpdateFetchedProductsAndPrices(data);
 
 	//========== FILTER =============//
 	type Category = 'all' | 'candlesticks' | 'candles';
@@ -72,7 +68,7 @@
 		}
 	}
 
-	$: filteredProducts = $products
+	$: filteredProducts = data.products
 		.filter((p) => {
 			if (category === 'candles') {
 				return p.metadata.productType && p.metadata.productType === 'candles' ? true : false;
@@ -96,17 +92,6 @@
 <header>
 	<h1 style="text-align: center;">Products</h1>
 </header>
-
-<!-- <nav>
-	<span>Category:</span>
-	<a href={`?status=${status}`}>all</a> |
-	<a href={`?category=candlesticks&status=${status}`}>candlesticks</a> |
-	<a href={`?category=candles&status=${status}`}>candles</a>
-	<span>Status:</span>
-	<a href={`?category=${category}`}>active</a> |
-	<a href={`?category=${category}&status=reserved`}>reserved</a> |
-	<a href={`?category=${category}&status=archived`}>archived</a>
-</nav> -->
 
 <div id="filter">
 	<div>
