@@ -7,12 +7,8 @@ export async function load({ params }) {
 	const { category } = params;
 
 	const categoryProducts = allProducts.filter((p) =>
-		category === 'swieczniki'
-			? !p.metadata.productType
-			: p.metadata.productType && p.metadata.productType === 'candles'
+		category === 'swiece' ? p.metadata.category === 'świece' : p.metadata.category === 'świeczniki'
 	);
-
-	console.log(`${category} was fetched => ${categoryProducts.length}`);
 
 	return { products: categoryProducts, prices: await prices.fetch() };
 }

@@ -1,54 +1,69 @@
 <script lang="ts">
-	import ProductCard from '$lib/components/ProductCard.svelte';
+	import CategoryCard from '$lib/components/CategoryCard.svelte';
+	import type { Category } from '$lib/interfaces/Category';
 
-	export let data;
-
-	function getPrice(productId: string) {
-		const price = data.prices.find((p) => p.product === productId);
-		return price;
-	}
+	const categories: Category[] = [
+		{
+			imgSrc: '/candleholder.jpeg',
+			name: 'świeczniki',
+			slug: 'swieczniki',
+			title: 'Świeczniki'
+		},
+		{
+			imgSrc: '/candle.jpeg',
+			name: 'świece',
+			slug: 'swiece',
+			title: 'Świece'
+		}
+	];
 </script>
 
-<header>
-	<h2 style="text-align: center;">
-		Kategoria: Wszystkie produkty ({data.products.length})
-	</h2>
-</header>
+<h1 style="text-align:center">Sklep</h1>
 
-<div class="products-list">
-	{#each data.products as product}
-		<ProductCard {product} price={getPrice(product.id)} />
+<hr />
+
+<div class="categories-list">
+	{#each categories as category}
+		<CategoryCard {category} />
 	{/each}
 </div>
 
+<slot />
+
 <style>
-	.products-list {
+	.categories-list {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 		gap: 3em; /* Adjust the gap between cards as needed */
+		max-width: 60%;
+		margin: auto;
 	}
 
 	@media only screen and (max-width: 992px) {
-		.products-list {
+		.categories-list {
 			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 3em; /* Adjust the gap between cards as needed */
+			grid-template-columns: repeat(2, 1fr);
+			gap: 2em; /* Adjust the gap between cards as needed */
+			max-width: 75%;
+			margin: auto;
 		}
 	}
 
 	@media only screen and (max-width: 768px) {
-		.products-list {
+		.categories-list {
 			display: grid;
 			grid-template-columns: repeat(2, 1fr);
-			gap: 3em; /* Adjust the gap between cards as needed */
+			gap: 1em; /* Adjust the gap between cards as needed */
+			max-width: 85%;
+			margin: auto;
 		}
 	}
 
 	@media only screen and (max-width: 576px) {
-		.products-list {
+		.categories-list {
 			display: grid;
 			grid-template-columns: repeat(1, 1fr);
-			gap: 3em; /* Adjust the gap between cards as needed */
+			max-width: 100%;
 		}
 	}
 </style>
