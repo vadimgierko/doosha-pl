@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type Stripe from "stripe";
-	import ProductCard from "./ProductCard.svelte";
+	import type Stripe from 'stripe';
+	import ProductCard from './ProductCard.svelte';
 
-    export let products: Stripe.Product[]
-    export let prices: Stripe.Price[]
+	export let products: Stripe.Product[];
+	export let prices: Stripe.Price[];
 
-    function getPrice(productId: string) {
+	function getPrice(productId: string) {
 		const price = prices.find((p) => p.product === productId);
 		return price;
 	}
@@ -22,6 +22,7 @@
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
 		gap: 3em; /* Adjust the gap between cards as needed */
+		padding-top: 1.5em;
 	}
 
 	@media only screen and (max-width: 992px) {
