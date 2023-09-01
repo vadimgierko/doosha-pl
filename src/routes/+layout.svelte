@@ -8,7 +8,7 @@
 
 	<div>
 		<a href="/sklep">sklep</a> |
-
+		<a href="/sklep/archiwum">archiwum</a> |
 		<a class="icon" href="/koszyk"
 			><svg
 				xmlns="http://www.w3.org/2000/svg"

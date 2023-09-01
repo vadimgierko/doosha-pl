@@ -4,10 +4,23 @@ import Stripe from 'stripe';
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
 
-async function fetch(ids?: string[]) {
-	const products = (await stripe.products.list({ ids, limit: 100 })).data;
+// FETCH ACTIVE PRODUCTS BY DEFAULT
+async function fetchActive(ids?: string[]) { // FETCH ACTIVE PRODUCTS BY DEFAULT
+	const active = (await stripe.products.list({ ids, limit: 100, active: true })).data;
 
-	return products;
+	return active;
+}
+
+async function fetchArchived() {
+	const archived = (await stripe.products.list({ limit: 100, active: false })).data;
+
+	return archived;
+}
+
+async function fetchAll() {
+	const all = (await stripe.products.list({ limit: 100})).data;
+
+	return all;
 }
 
 async function reserve(ids: string[], sessionId: string, timestamp: number) {
@@ -32,11 +45,11 @@ async function archive(ids: string[]) {
 	return archivedProducts;
 }
 
-async function fetchAndUnreserve() {
+async function fetchAndUnreserve() { // FETCH ACTIVE PRODUCTS BY DEFAULT
 	// do this everytime you load products
 	const timestamp = Date.now();
 	// console.log('fetch timestamp:', timestamp);
-	const products = await fetch();
+	const products = await fetchAll();
 
 	const productsNotToReserve = products.filter(
 		(p) =>
@@ -54,10 +67,14 @@ async function fetchAndUnreserve() {
 	return [...productsNotToReserve, ...unreservedProducts];
 }
 
+
+
 export default {
-	fetch,
+	archive,
+	fetchActive,
+	fetchAll,
 	fetchAndUnreserve, // do this everytime you load products
+	fetchArchived,
 	reserve,
-	unreserve,
-	archive
+	unreserve	
 };

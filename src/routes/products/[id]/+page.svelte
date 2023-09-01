@@ -1,6 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
+	import OrderArchivedButton from '$lib/components/OrderArchivedButton.svelte';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
 	import { cart } from '$lib/stores/cart';
 
@@ -43,8 +44,9 @@
 				{/if}
 			{:else}
 				<p style="color:red">
-					Product is archived (has been purchased)... Cannot buy this product.
+					Produkt był dostepny w liczbie pojedynczej i został kupiony, więc nie możesz go kupić w chwili obecnej, tylko zamówić (kliknij przycisk poniżej)
 				</p>
+				<OrderArchivedButton id={product.id} />
 			{/if}
 		</div>
 	</div>

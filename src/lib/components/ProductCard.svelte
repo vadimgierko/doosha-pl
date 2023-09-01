@@ -3,6 +3,7 @@
 	import { cart } from '$lib/stores/cart';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
+	import OrderArchivedButton from './OrderArchivedButton.svelte';
 
 	export let product: Stripe.Product;
 	export let price: Stripe.Price | undefined;
@@ -28,10 +29,14 @@
 			>
 		</header>
 	</div>
-	{#if isProductInCart}
-		<RemoveFromCartButton id={product.id} />
+	{#if product.active}
+		{#if isProductInCart}
+			<RemoveFromCartButton id={product.id} />
+		{:else}
+			<AddToCartButton id={product.id} />
+		{/if}
 	{:else}
-		<AddToCartButton id={product.id} />
+		<OrderArchivedButton id={product.id} />
 	{/if}
 </div>
 
