@@ -5,11 +5,6 @@
 </script>
 
 <div class="category-card">
-	<div class="category-card-header">
-		<header>
-			<a href={`/sklep/${category.slug}`}><h2 class="category-card-title">{category.title}</h2></a>
-		</header>
-	</div>
 	<div class="category-card">
 		<div class="category-card-img">
 			<a href={`/sklep/${category.slug}`}
@@ -17,6 +12,9 @@
 			>
 		</div>
 	</div>
+	<header>
+		<a href={`/sklep/${category.slug}`}><h2 class="category-card-title">{category.title}</h2></a>
+	</header>
 </div>
 
 <style>

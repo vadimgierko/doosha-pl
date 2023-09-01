@@ -14,6 +14,12 @@
 			name: 'świece',
 			slug: 'swiece',
 			title: 'Świece'
+		},
+		{
+			imgSrc: '/candle.jpeg',
+			name: 'archiwum',
+			slug: 'archiwum',
+			title: 'Archiwum (dostępne na zamówienie)'
 		}
 	];
 </script>

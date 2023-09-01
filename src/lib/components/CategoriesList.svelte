@@ -14,10 +14,11 @@
 <style>
 	.categories-list {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		gap: 3em; /* Adjust the gap between cards as needed */
-		max-width: 60%;
+		max-width: 80%;
 		margin: auto;
+		padding-top: 1.5em;
 	}
 
 	@media only screen and (max-width: 992px) {
