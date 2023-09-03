@@ -2,6 +2,13 @@
 	import CategoriesList from '$lib/components/CategoriesList.svelte';
 	import type { Category } from '$lib/interfaces/Category';
 
+	export let data;
+
+	const archivedProducts = data.products.filter((p) => !p.active);
+	const archivedProductImageSrc = archivedProducts.length
+		? archivedProducts[0].images[0]
+		: '/candle.jpeg';
+
 	const categories: Category[] = [
 		{
 			imgSrc: '/candleholder.jpeg',
@@ -16,7 +23,7 @@
 			title: 'Świece'
 		},
 		{
-			imgSrc: '/candle.jpeg',
+			imgSrc: archivedProductImageSrc,
 			name: 'archiwum',
 			slug: 'archiwum',
 			title: 'Archiwum (dostępne na zamówienie)'
