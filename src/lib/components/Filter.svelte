@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import type { Order } from '$lib/interfaces/Order';
 	import type { Sort } from '$lib/interfaces/Sort';
-    import { page } from '$app/stores';
+	import { page } from '$app/stores';
 
 	const allowedSortValues: Sort[] = ['price', 'timestamp'];
 	const allowedOrderValues: Order[] = ['asc', 'desc'];
