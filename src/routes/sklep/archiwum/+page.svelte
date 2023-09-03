@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ProductsList from '$lib/components/ProductsList.svelte';
+	import ProductsListWithFilter from '$lib/components/ProductsListWithFilter.svelte';
 
 	export let data;
 
@@ -12,4 +12,4 @@
 
 <hr />
 
-<ProductsList {products} {prices} />
+<ProductsListWithFilter {products} {prices} />

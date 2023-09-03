@@ -1,19 +1,15 @@
 <script lang="ts">
 	import type Stripe from 'stripe';
 	import ProductCard from './ProductCard.svelte';
+	import getPrice from '$lib/utils/getPrice';
 
 	export let products: Stripe.Product[];
 	export let prices: Stripe.Price[];
-
-	function getPrice(productId: string) {
-		const price = prices.find((p) => p.product === productId);
-		return price;
-	}
 </script>
 
 <div class="products-list">
 	{#each products as product}
-		<ProductCard {product} price={getPrice(product.id)} />
+		<ProductCard {product} price={getPrice(product.id, prices)} />
 	{/each}
 </div>
 
