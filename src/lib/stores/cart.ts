@@ -1,18 +1,14 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
-
-interface CartRecord {
-	id: string;
-	qty: number;
-}
+import type { CartRecord } from '$lib/interfaces/CartRecord';
 
 const initCart: CartRecord[] = [];
 
 export const cart = writable(initCart);
 const CART_NAME = 'doosha-cart';
 
-export function addToCart(id: string) {
-	cart.update((n) => [...n, { id, qty: 1 }]);
+export function addToCart({ id, category }: { id: string; category: CartRecord['category'] }) {
+	cart.update((n) => [...n, { id, category, qty: 1 }]);
 	console.log('product with the id:', id, 'was added to cart.');
 }
 
