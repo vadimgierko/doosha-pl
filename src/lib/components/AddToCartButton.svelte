@@ -1,10 +1,12 @@
 <script lang="ts">
+	import type { CartRecord } from '$lib/interfaces/CartRecord';
 	import { addToCart } from '$lib/stores/cart';
 
 	export let id: string;
+	export let category: CartRecord['category'];
 </script>
 
-<button on:click={() => addToCart(id)}>add to cart</button>
+<button on:click={() => addToCart({ id, category })}>add to cart</button>
 
 <style>
 	button {

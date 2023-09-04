@@ -4,25 +4,17 @@
 	import { activeSession, saveSession } from '$lib/stores/activeSession';
 	import { page } from '$app/stores';
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
+	import getProduct from '$lib/utils/getProduct.js';
+	import getPrice from '$lib/utils/getPrice.js';
 
 	export let data;
 
 	const { products, prices } = data;
 
-	function getProduct(productId: string) {
-		const product = products.find((p) => p.id === productId);
-		return product;
-	}
-
-	function getPrice(productId: string) {
-		const price = prices.find((p) => p.product === productId);
-		return price;
-	}
-
 	$: cartProductsAndPrices = $cart
 		.map((record) => ({
-			product: getProduct(record.id),
-			price: getPrice(record.id),
+			product: getProduct(record.id, products),
+			price: getPrice(record.id, prices),
 			qty: record.qty
 		}))
 		.filter((record) => record.product !== undefined && record.price !== undefined) as {
@@ -51,16 +43,8 @@
 
 		// 2. check if CANDLESTICKS products are not in the another session (because they are singular products):
 		const areCandlescticksNotReserved = cartProductsAndPrices
-			.filter((p) => !p.product.metadata.productType)
-			.every((p) => {
-				const metadata = p.product.metadata;
-
-				if (Object.keys(metadata).length === 0 || !metadata.sessionId) {
-					return true;
-				}
-
-				return false;
-			});
+			.filter((p) => p.product.metadata.category === 'świeczniki')
+			.every((p) => (p.product.metadata.sessionId ? false : true));
 
 		if (!areCandlescticksNotReserved) {
 			const reservedCandlesticks = cartProductsAndPrices.filter(
@@ -100,7 +84,7 @@
 			console.log('reserving candlesticks...');
 
 			const candlesticksIdsFromCart = cartProductsAndPrices
-				.filter((r) => !r.product.metadata.productType)
+				.filter((r) => r.product.metadata.category === 'świeczniki')
 				.map((r) => r.product.id);
 
 			const reservedCandlesticks: Stripe.Product[] = await fetch('/api/products/reserve', {
@@ -156,6 +140,13 @@
 					<a href={`/products/${product.id}`}><h3>{product.name}</h3> </a>
 				</header>
 
+				<p>
+					kategoria: <a
+						href={`/sklep/${product.metadata.category === 'świece' ? 'swiece' : 'swieczniki'}`}
+						>{product.metadata.category}</a
+					>
+				</p>
+
 				{#if price.unit_amount}
 					<p><strong>{price.unit_amount / 100},-</strong></p>
 				{/if}
@@ -167,7 +158,7 @@
 				{/if}
 
 				<!-- IF THE PRODUCT IS A CANDLESTICK -->
-				{#if !product.metadata.productType && product.metadata.timestamp}
+				{#if product.metadata.category === 'świeczniki' && product.metadata.timestamp}
 					<span style="color:red"
 						>(Product is reserved until {new Date(Number(product.metadata.timestamp))})</span
 					>
@@ -176,7 +167,7 @@
 				<p style="color: grey">{product.id}</p>
 
 				<!-- IF THE PRODUCT IS CANDLES => ADD - + BUTTONS -->
-				{#if product.metadata.productType && product.metadata.productType === 'candles'}
+				{#if product.metadata.category === 'świece'}
 					<div style="margin-bottom: 0.5em;">
 						<button
 							on:click={() => {
@@ -265,7 +256,7 @@
 		color: white;
 	}
 
-	a {
+	.product-title a {
 		text-decoration: none;
 		color: black;
 	}

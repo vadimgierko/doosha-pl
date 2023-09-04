@@ -39,7 +39,14 @@ async function expire(sessionId: string) {
 	return expiredSession;
 }
 
+async function retrieve(sessionId: string) {
+	const retrievedSession = await stripe.checkout.sessions.retrieve(sessionId);
+
+	return retrievedSession;
+}
+
 export default {
 	create,
-	expire
+	expire,
+	retrieve
 };

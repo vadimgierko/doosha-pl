@@ -4,11 +4,13 @@
 	import RemoveFromCartButton from '$lib/components/RemoveFromCartButton.svelte';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import OrderArchivedButton from './OrderArchivedButton.svelte';
+	import type { CartRecord } from '$lib/interfaces/CartRecord';
 
 	export let product: Stripe.Product;
 	export let price: Stripe.Price | undefined;
 
 	$: isProductInCart = $cart.find((r) => r.id === product.id);
+	$: category = product.metadata.category as CartRecord['category'];
 </script>
 
 <div class="product-card">
@@ -33,7 +35,7 @@
 		{#if isProductInCart}
 			<RemoveFromCartButton id={product.id} />
 		{:else}
-			<AddToCartButton id={product.id} />
+			<AddToCartButton id={product.id} {category} />
 		{/if}
 	{:else}
 		<OrderArchivedButton id={product.id} />
