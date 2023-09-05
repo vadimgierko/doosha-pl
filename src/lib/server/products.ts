@@ -49,7 +49,7 @@ async function fetchAndUnreserve() { // FETCH ACTIVE PRODUCTS BY DEFAULT
 	// do this everytime you load products
 	const timestamp = Date.now();
 	// console.log('fetch timestamp:', timestamp);
-	const products = await fetchAll();
+	const products = await fetchActive();
 
 	const productsNotToReserve = products.filter(
 		(p) =>
