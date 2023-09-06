@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { activeSession, resetSession } from '$lib/stores/activeSession';
 	import { cart } from '$lib/stores/cart';
+	import getProduct from '$lib/utils/getProduct.js';
 	import type Stripe from 'stripe';
 	import { onMount } from 'svelte';
 
@@ -9,13 +10,37 @@
 
 	// retrieve session & its line_items by sessionId:
 	export let data;
-	const { session, line_items, last20sessions } = data;
+	const { session, line_items, products } = data;
 
 	$: console.log({ session, line_items });
-	$: console.log(
-		'last expired sessions:',
-		last20sessions.data.filter((s) => s.status === 'expired')
-	);
+
+	// helper functions (reusable for /success too):
+	function areLineItemsSameAsInTheCart({
+		cartIds,
+		line_items_ids
+	}: {
+		cartIds: string[];
+		line_items_ids: string[];
+	}): boolean {
+		const bool =
+			cartIds.length === line_items_ids.length &&
+			cartIds.every((id) => line_items_ids.includes(id)) &&
+			line_items_ids.every((id) => cartIds.includes(id));
+
+		console.log('areLineItemsSameAsInTheCart:', bool);
+
+		return bool;
+	}
+
+	function areAllCandlesticksHaveSameSessionId(candlesticksInCart: Stripe.Product[]): boolean {
+		const bool = candlesticksInCart.every(
+			(p) => p.metadata.sessionId && p.metadata.sessionId === sessionId
+		);
+
+		console.log('areAllCandlesticksHaveSameSessionId:', bool);
+
+		return bool;
+	}
 
 	async function expireSessionAndUnreserveCart() {
 		const generalErrorMessage = 'Cannot proceed expiring session & unreserving cart.';
@@ -38,14 +63,24 @@
 
 		console.log({ cartIds, line_items_ids });
 
-		const areLineItemsSameAsInTheCart: boolean =
-			cartIds.length === line_items_ids.length &&
-			cartIds.every((id) => line_items_ids.includes(id)) &&
-			line_items_ids.every((id) => cartIds.includes(id));
+		if (!areLineItemsSameAsInTheCart({ cartIds, line_items_ids }))
+			return console.error(`Line items are not same as in the cart... ${generalErrorMessage}`);
 
-		console.log({ areLineItemsSameAsInTheCart });
+		const candlesticksInCart = (
+			cartIds
+				.map((id) => getProduct(id, products))
+				.filter((p) => p !== undefined) as Stripe.Product[]
+		).filter((p) => p.metadata.category === 'świeczniki');
 
-		// if session is fetched, not expired or complete & got line items, proceed:
+		console.log({ candlesticksInCart });
+
+		if (candlesticksInCart.length) {
+			if (!areAllCandlesticksHaveSameSessionId(candlesticksInCart))
+				return console.error(
+					`Candlesticks in the cart have different session id... ${generalErrorMessage}`
+				);
+		}
+
 		console.log(
 			`Expiring canceled session with the id ${sessionId} & unreserving not purchased products...`
 		);
@@ -69,6 +104,7 @@
 				},
 				body: JSON.stringify({ ids: $cart.map((r) => r.id) })
 			}).then((data) => data.json());
+
 			// if session was an active session stored in local storage => reset it:
 			if ($activeSession) {
 				if ($activeSession.id === expiredSession.id) {
@@ -85,8 +121,8 @@
 	onMount(() => expireSessionAndUnreserveCart());
 </script>
 
-<h1 style="text-align: center">Payment was canceled...</h1>
-<div><a href="/cart">back to cart</a> | <a href="/products">back to store</a></div>
+<h1 style="text-align: center">Płatność została anulowana...</h1>
+<div><a href="/koszyk">wróć do koszyka</a> | <a href="/sklep">wróc do sklepu</a></div>
 
 <style>
 	* {

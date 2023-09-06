@@ -39,8 +39,8 @@
 	onMount(() => archiveCandleSticks());
 </script>
 
-<h1>Thank you for your purchase!</h1>
-<div><a href="/products">back to store</a></div>
+<h1>Dziękujemy za zakup!</h1>
+<div><a href="/products">wróc do sklepu</a></div>
 
 <style>
 	* {
