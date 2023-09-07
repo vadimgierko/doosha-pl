@@ -45,8 +45,22 @@ async function retrieve(sessionId: string) {
 	return retrievedSession;
 }
 
+async function fetchLineItems(sessionId: string) {
+	const line_items = await stripe.checkout.sessions.listLineItems(sessionId, {limit: 100})
+
+	return line_items
+}
+
+async function fetchLast20Sessions() {
+	const last20sessions = await stripe.checkout.sessions.list({limit: 20})
+
+	return last20sessions
+}
+
 export default {
 	create,
 	expire,
-	retrieve
+	retrieve,
+	fetchLineItems,
+	fetchLast20Sessions
 };
