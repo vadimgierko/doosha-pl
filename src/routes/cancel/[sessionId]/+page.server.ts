@@ -1,4 +1,4 @@
-import products from '$lib/server/products.js';
+import products from '$lib/server/products';
 import session from '$lib/server/session';
 
 export async function load({ params }) {

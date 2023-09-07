@@ -6,11 +6,11 @@
 	import type Stripe from 'stripe';
 	import { onMount } from 'svelte';
 
-	const { sessionId } = $page.params;
-
 	// retrieve session & its line_items by sessionId:
 	export let data;
 	const { session, line_items, products } = data;
+
+	const { sessionId } = $page.params;
 
 	$: console.log({ session, line_items });
 
@@ -105,13 +105,14 @@
 				body: JSON.stringify({ ids: $cart.map((r) => r.id) })
 			}).then((data) => data.json());
 
+			console.log({ unreservedProducts });
+
 			// if session was an active session stored in local storage => reset it:
 			if ($activeSession) {
 				if ($activeSession.id === expiredSession.id) {
 					resetSession();
 				}
 			}
-			console.log({ unreservedProducts });
 		} catch (error) {
 			console.error(error);
 			alert(error);
